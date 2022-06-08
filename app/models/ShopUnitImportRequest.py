@@ -13,5 +13,5 @@ class ShopUnitImportRequest(BaseModel):
         try:
             datetime.fromisoformat(dt_str)
         except:
-            raise ValueError('Data Validation Failed')
+            raise ValueError('Validation Failed')
         return dt_str

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 from uuid import UUID
 from pydantic import BaseModel, validator
@@ -12,12 +13,12 @@ class ShopUnit(BaseModel):
     parentId: Optional[UUID] = None
     type: ShopUnitType
     price: int
-    children: Optional[list] = None
+    children: Optional[ShopUnit] = None
 
     @validator('date')
     def datetime_valid(cls, dt_str):
         try:
             datetime.fromisoformat(dt_str)
         except:
-            raise ValueError('Data Validation Failed')
+            raise ValueError('Validation Failed')
         return dt_str
