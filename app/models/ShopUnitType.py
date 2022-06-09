@@ -8,5 +8,5 @@ class ShopUnitTypeEnum(str, Enum):
 
 
 class ShopUnitType(BaseModel):
-    choice: ShopUnitTypeEnum
+    shop_unit_type: ShopUnitTypeEnum
 

@@ -1,20 +1,21 @@
 from typing import Optional
 from uuid import UUID
-from pydantic import BaseModel, validator
-from app.models.ShopUnitType import ShopUnitType
+from pydantic import BaseModel, root_validator
+from app.models.ShopUnitType import ShopUnitTypeEnum
 
 
 class ShopUnitImport(BaseModel):
     id: UUID
     name: str
     parentId: Optional[UUID] = None
-    type: ShopUnitType
+    type: ShopUnitTypeEnum
     price: Optional[int] = None
 
-    @validator('price')
-    def price_validation(cls, type, price):
-        if type == ShopUnitType.choice.CATEGORY and price:
+    @root_validator
+    def price_validation(cls, values):
+        type, price = values.get("type"), values.get("price")
+        if type.value == ShopUnitTypeEnum.CATEGORY.value and price:
             raise ValueError('Validation Failed')
-        if type == ShopUnitType.choice.OFFER and (not price or price < 0):
+        if type.value == ShopUnitTypeEnum.OFFER.value and (not price or price < 0):
             raise ValueError('Validation Failed')
-        return price
+        return values
