@@ -2,8 +2,6 @@ import pprint
 from datetime import datetime
 from typing import List
 from uuid import UUID
-from dateutil import parser
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.models.ShopUnitType import ShopUnitTypeOutput
 from .depends import get_shop_unit_repository, get_children_repository
