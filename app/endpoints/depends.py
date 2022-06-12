@@ -9,10 +9,6 @@ def get_shop_unit_type_repository() -> ShopUnitTypeRepository:
     return ShopUnitTypeRepository(database)
 
 
-# def get_shop_unit_import_request_repository() -> ShopUnitImportRequestRepository:
-#     return ShopUnitImportRequestRepository(database)
-
-
 def get_shop_unit_repository() -> ShopUnitRepository:
     return ShopUnitRepository(database)
 

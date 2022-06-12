@@ -11,6 +11,8 @@ class ChildrenRepository(BaseRepository):
         return [Children.parse_obj(row) for row in await self.database.fetch_all(query)]
 
     async def create(self, item: ShopUnitImport):
+        if not item.parentId:
+            return None
         new_children = Children(
             children_id=item.id,
             parent_id=item.parentId
@@ -21,12 +23,12 @@ class ChildrenRepository(BaseRepository):
         return await self.database.execute(query)
 
     async def update(self, item: ShopUnitImport):
+        if not item.parentId:
+            return None
         update_children = Children(
             children_id=item.id,
             parent_id=item.parentId
         )
-
-
         values = {**update_children.dict()}
         query = children.update().where(
             (children.c.children_id == update_children.children_id) &
