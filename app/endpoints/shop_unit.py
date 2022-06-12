@@ -15,20 +15,13 @@ from ..repositories.shop_unit import ShopUnitRepository
 router = APIRouter()
 
 
-@router.get("/get_all", response_model=List[ShopUnit])
-async def read_shop_unit(
-        shop_type: ShopUnitRepository = Depends(get_shop_unit_repository)
-):
-    return await shop_type.get_all()
-
-
-@router.get("/get_by_id", response_model=ShopUnitDB)
+@router.get("/get_by_id", response_model=ShopUnit)
 async def read_shop_unit_by_id(
         id: UUID,
         shop_type: ShopUnitRepository = Depends(get_shop_unit_repository)
 
 ):
-    pprint.pprint(await shop_type.get_children("069cb8d7-bbdd-47d3-ad8f-82ef4c269df1"))
+
     return await shop_type.get_by_id(id)
 
 
