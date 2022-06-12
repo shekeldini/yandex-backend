@@ -59,16 +59,6 @@ class ShopUnitRepository(BaseRepository):
         return obj.parent_id
 
     async def get_by_id(self, id: UUID) -> Optional[ShopUnit]:
-        def sum_price(root: list, x=0, c=0):
-            for node in root:
-                if node["type"] == "CATEGORY":
-                    node["price"] = sum_price(node["children"])
-                else:
-                    x += node["price"]
-                    c += 1
-
-            return x // c if c else x
-
         query = shop_unit.select().where(shop_unit.c.id == id)
         res = await self.database.fetch_one(query)
         if res is None:
@@ -85,14 +75,10 @@ class ShopUnitRepository(BaseRepository):
             children=await self.__get_children(obj.id),
         )
         tree = {**response.dict()}
-        sum_price(tree["children"])
-        for i in tree["children"]:
-            tree["price"] += i["price"] // len(tree["children"])
-        obj = ShopUnit.parse_obj(tree)
+        obj = ShopUnit.parse_obj(Price(tree).res())
         if obj.type == ShopUnitType.OFFER:
             obj.children = None
         return obj
-
 
     async def create(self, item: ShopUnitImport, date: datetime):
         new_shop_unit_item = ShopUnitDB(
@@ -132,3 +118,46 @@ class ShopUnitRepository(BaseRepository):
         await self.database.execute(query=query)
 
         return "deleted"
+
+
+class Price:
+    def __init__(self, data):
+        self.data = data
+        self.sumList = []
+
+    @staticmethod
+    def mean_list(my_list: list):
+        return sum(my_list) // len(my_list) if my_list else 0
+
+    @staticmethod
+    def merge_list(temp_list, branch_sum):
+        res = []
+        res += temp_list
+        res += branch_sum
+        return res
+
+    def price(self, root, sum_list: list, branch_sum_list: list):
+        branch_sum_list.clear()
+        if root["children"]:
+            for node in root["children"]:
+                if node["type"] == "CATEGORY":
+                    self.price(node, sum_list, branch_sum_list)
+
+        temp_list = []
+        for node in root["children"]:
+            if node["type"] == "OFFER":
+                sum_list.append(node["price"])
+                temp_list.append(node["price"])
+
+        root["price"] = self.mean_list(self.merge_list(temp_list, branch_sum_list))
+        self.add_in_list_from_another_list(temp_list, branch_sum_list)
+
+    @staticmethod
+    def add_in_list_from_another_list(add_from: list, add_to: list):
+        for i in add_from:
+            add_to.append(i)
+
+    def res(self):
+        self.price(self.data, self.sumList, [])
+        self.data["price"] = sum(self.sumList) // len(self.sumList)
+        return self.data
