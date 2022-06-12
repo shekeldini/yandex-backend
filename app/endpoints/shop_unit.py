@@ -17,9 +17,7 @@ router = APIRouter()
 async def read_shop_unit_by_id(
         id: UUID,
         shop_type: ShopUnitRepository = Depends(get_shop_unit_repository)
-
 ):
-
     return await shop_type.get_by_id(id)
 
 
