@@ -1,19 +1,18 @@
-import pprint
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 from uuid import UUID
 
-from ..models.Children import Children
-from ..models.ShopUnit import ShopUnit, ShopUnitDB
-from ..db.shop_unit import shop_unit
 from ..db.children import children
+from ..models.Children import Children
+from ..models.ShopUnit import ShopUnitDB, ShopUnit
+from ..db.shop_unit import shop_unit
 from .base import BaseRepository
 from ..models.ShopUnitImport import ShopUnitImport
 from ..models.ShopUnitType import ShopUnitType
 
 
 class ShopUnitRepository(BaseRepository):
-    async def get_children(self, id: UUID):
+    async def __get_children(self, id: UUID) -> List[ShopUnit]:
         res = []
 
         async def get(id, res):
@@ -22,7 +21,7 @@ class ShopUnitRepository(BaseRepository):
             if children_list:
                 for item in children_list:
 
-                    children_obj = ShopUnitDB.parse_obj(await self.get_by_id_from_db(item.children_id))
+                    children_obj = ShopUnitDB.parse_obj(await self.__get_by_id_from_db(item.children_id))
                     is_category = children_obj.shop_unit_type == ShopUnitType.CATEGORY.value
 
                     res.append({})
@@ -43,7 +42,7 @@ class ShopUnitRepository(BaseRepository):
         await get(id, res)
         return res
 
-    async def get_by_id_from_db(self, id: UUID) -> Optional[ShopUnitDB]:
+    async def __get_by_id_from_db(self, id: UUID) -> Optional[ShopUnitDB]:
         query = shop_unit.select().where(shop_unit.c.id == id)
         res = await self.database.fetch_one(query)
         if res is None:
@@ -51,7 +50,7 @@ class ShopUnitRepository(BaseRepository):
         obj = ShopUnitDB.parse_obj(res)
         return obj
 
-    async def get_parent_id(self, children_id: UUID) -> Optional[UUID]:
+    async def __get_parent_id(self, children_id: UUID) -> Optional[UUID]:
         query = children.select().where(children.c.children_id == children_id)
         res = await self.database.fetch_one(query)
         if res is None:
@@ -82,14 +81,18 @@ class ShopUnitRepository(BaseRepository):
             date=obj.date,
             type=obj.shop_unit_type,
             price=obj.price if obj.shop_unit_type == "OFFER" else 0,
-            parentId=await self.get_parent_id(obj.id),
-            children=await self.get_children(obj.id),
+            parentId=await self.__get_parent_id(obj.id),
+            children=await self.__get_children(obj.id),
         )
         tree = {**response.dict()}
         sum_price(tree["children"])
         for i in tree["children"]:
             tree["price"] += i["price"] // len(tree["children"])
-        return ShopUnit.parse_obj(tree)
+        obj = ShopUnit.parse_obj(tree)
+        if obj.type == ShopUnitType.OFFER:
+            obj.children = None
+        return obj
+
 
     async def create(self, item: ShopUnitImport, date: datetime):
         new_shop_unit_item = ShopUnitDB(
@@ -102,10 +105,6 @@ class ShopUnitRepository(BaseRepository):
         values = {**new_shop_unit_item.dict()}
         query = shop_unit.insert().values(**values)
         return await self.database.execute(query)
-
-    async def delete(self, id: UUID):
-        query = shop_unit.delete().where(shop_unit.c.id == id)
-        return await self.database.execute(query=query)
 
     async def update(self, item: ShopUnitImport, date: datetime) -> ShopUnitDB:
         update_shop_unit_item = ShopUnitDB(
@@ -122,3 +121,14 @@ class ShopUnitRepository(BaseRepository):
         await self.database.execute(query=query)
 
         return update_shop_unit_item
+
+    async def delete(self, id: UUID):
+        query = children.select().where(children.c.parent_id == id)
+        children_list = [Children.parse_obj(row) for row in await self.database.fetch_all(query)]
+        if children_list:
+            for child in children_list:
+                await self.delete(child.children_id)
+        query = shop_unit.delete().where(shop_unit.c.id == id)
+        await self.database.execute(query=query)
+
+        return "deleted"
