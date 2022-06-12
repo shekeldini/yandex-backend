@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from pydantic import BaseModel, validator
 from datetime import datetime
@@ -12,8 +12,8 @@ class ShopUnit(BaseModel):
     date: datetime
     parentId: Optional[UUID] = None
     type: ShopUnitType
-    price: int
-    children: Optional[ShopUnit] = None
+    price: Optional[int] = None
+    children: Optional[List[ShopUnit]] = None
 
     @validator('date')
     def datetime_valid(cls, dt_str):
