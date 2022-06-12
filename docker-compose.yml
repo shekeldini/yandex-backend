@@ -7,7 +7,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - 8000:8000
+      - 80:8000
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/yandex_db
       - SECRET_KEY=secret-key
