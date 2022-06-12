@@ -15,10 +15,18 @@ class ShopUnit(BaseModel):
     price: int
     children: Optional[ShopUnit] = None
 
-    @validator('updateDate')
+    @validator('date')
     def datetime_valid(cls, dt_str):
         try:
             datetime.fromisoformat(str(dt_str))
         except:
             raise ValueError('Validation Failed')
         return dt_str
+
+
+class ShopUnitDB(BaseModel):
+    id: UUID
+    name: str
+    date: str
+    shop_unit_type: ShopUnitType
+    price: Optional[int] = None
