@@ -1,11 +1,9 @@
-import json
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from .depends import get_shop_unit_repository, get_children_repository
 from ..models.ShopUnitImportRequest import ShopUnitImportRequest
 from ..repositories.shop_unit import ShopUnitRepository
 from ..repositories.children import ChildrenRepository
-from fastapi.encoders import jsonable_encoder
+
 router = APIRouter()
 
 
@@ -23,5 +21,7 @@ async def create_shop_unit_type(
         else:
             await shop_unit_repository.create(item, date)
             await children_repository.create(item)
+        if item.parentId:
+            await shop_unit_repository.update_parent(item.id, date)
 
     return

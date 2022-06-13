@@ -3,3 +3,4 @@
 .env
 .idea
 *.pyc
+app/test.py
