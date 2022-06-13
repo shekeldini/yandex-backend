@@ -17,17 +17,12 @@ class ShopUnitRepository(BaseRepository):
         return ShopUnitDB.parse_obj(res)
 
     async def update_parent(self, child_id: UUID, date: str):
-        print("func update_parent child_id=", child_id)
         query = children.select().where(children.c.children_id == child_id)
         res = await self.database.fetch_one(query)
         if res:
             child = Children.parse_obj(res)
-            print("func update_parent parent_id=", child.parent_id)
             await self.update_parent(child.parent_id, date)
-        print("no parent")
         item = await self.get_by_id(child_id)
-        print("update data id=", item.id)
-        print()
         return await self.update_date(item, date)
 
     async def update_date(self, item: ShopUnitDB, date: str):
