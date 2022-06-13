@@ -16,7 +16,6 @@ async def create_shop_unit_type(
     date = shop_unit_items.updateDate
     parent_id_list = set()
     for item in shop_unit_items.items:
-
         if await shop_unit_repository.get_by_id(item.id):
             await shop_unit_repository.update(item, date)
             await children_repository.update(item)
@@ -30,4 +29,4 @@ async def create_shop_unit_type(
     for parent_id in parent_id_list:
         await shop_unit_repository.update_parent(parent_id, date)
 
-    return
+    return "Вставка или обновление прошли успешно."

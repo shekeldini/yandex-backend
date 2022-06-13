@@ -13,9 +13,10 @@ async def read_node_by_id(
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository)
 ):
     if await shop_unit_repository.get_by_id(id):
-        return await shop_unit_repository.delete(id)
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+        await shop_unit_repository.delete(id)
+        return "Удаление прошло успешно."
 
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
 
 
