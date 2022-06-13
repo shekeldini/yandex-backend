@@ -14,6 +14,7 @@ async def create_shop_unit_type(
         children_repository: ChildrenRepository = Depends(get_children_repository),
 ):
     date = shop_unit_items.updateDate
+    parent_id_list = set()
     for item in shop_unit_items.items:
         if await shop_unit_repository.get_by_id(item.id):
             await shop_unit_repository.update(item, date)
@@ -22,6 +23,8 @@ async def create_shop_unit_type(
             await shop_unit_repository.create(item, date)
             await children_repository.create(item)
         if item.parentId:
-            await shop_unit_repository.update_parent(item.id, date)
+            parent_id_list.add(item.parentId)
+    for parent_id in parent_id_list:
+        await shop_unit_repository.update_parent(parent_id, date)
 
     return

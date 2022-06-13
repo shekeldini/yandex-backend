@@ -58,8 +58,6 @@ class ShopUnitRepository(BaseRepository):
         query = shop_unit.insert().values(**values)
         return await self.database.execute(query)
 
-
-
     async def update(self, item: ShopUnitImport, date: str) -> ShopUnitDB:
         update_shop_unit_item = ShopUnitDB(
             id=item.id,
