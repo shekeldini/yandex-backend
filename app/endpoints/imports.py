@@ -21,10 +21,9 @@ async def create_shop_unit_type(
             item_list.append(item)
         else:
             raise ValueError("Duplicate Id")
-        
+
         if item.parentId:
             parent_id_list.add(item.parentId)
-
 
     for item in item_list:
         if await shop_unit_repository.get_by_id(item.id):

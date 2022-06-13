@@ -10,3 +10,5 @@ bcrypt
 python-jose
 pydantic
 python-dateutil
+python-redis-rate-limit
+aioredis==1.3.1

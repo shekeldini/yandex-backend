@@ -13,6 +13,7 @@ services:
       - SECRET_KEY=secret-key
     depends_on:
       - db
+      - redis
     restart: always
 
   db:
