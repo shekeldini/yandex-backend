@@ -9,4 +9,6 @@ passlib
 bcrypt
 python-jose
 pydantic
-
+python-redis-rate-limit
+python-dateutil
+aioredis==1.3.1

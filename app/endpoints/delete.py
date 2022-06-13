@@ -1,7 +1,7 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
+from fastapi import HTTPException
 from .depends import get_shop_unit_repository
-from ..models.ShopUnit import ShopUnit
 from ..repositories.shop_unit import ShopUnitRepository
 
 router = APIRouter()
@@ -12,7 +12,9 @@ async def read_node_by_id(
         id: UUID,
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository)
 ):
-    return await shop_unit_repository.delete(id)
+    if await shop_unit_repository.get_by_id(id):
+        return await shop_unit_repository.delete(id)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
 
 

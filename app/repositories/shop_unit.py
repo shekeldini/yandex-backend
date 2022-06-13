@@ -1,11 +1,15 @@
 from typing import Optional
 from uuid import UUID
+
+from ..core.config import IMPORT_DELETE_KEY, IMPORT_DELETE_MAX_REQUESTS, IMPORT_DELETE_EXPIRE
+from ..db.base import redis
 from ..db.children import children
 from ..models.Children import Children
 from ..models.ShopUnit import ShopUnitDB
 from ..db.shop_unit import shop_unit
 from .base import BaseRepository
 from ..models.ShopUnitImport import ShopUnitImport
+from redis_rate_limit import RateLimit
 
 
 class ShopUnitRepository(BaseRepository):
@@ -38,10 +42,14 @@ class ShopUnitRepository(BaseRepository):
         values.pop("id", None)
         query = shop_unit.update().where(shop_unit.c.id == update_data.id).values(**values)
         await self.database.execute(query=query)
-        return "updated"
+        return "Дата обновлена."
 
+    @RateLimit(resource=IMPORT_DELETE_KEY,
+               client='ALL',
+               max_requests=IMPORT_DELETE_MAX_REQUESTS,
+               expire=IMPORT_DELETE_EXPIRE,
+               redis_pool=redis)
     async def create(self, item: ShopUnitImport, date: str):
-
         new_shop_unit_item = ShopUnitDB(
             id=item.id,
             name=item.name,
@@ -51,9 +59,15 @@ class ShopUnitRepository(BaseRepository):
         )
         values = {**new_shop_unit_item.dict()}
         query = shop_unit.insert().values(**values)
-        return await self.database.execute(query)
+        await self.database.execute(query)
+        return "Вставка или обновление прошли успешно."
 
-    async def update(self, item: ShopUnitImport, date: str) -> ShopUnitDB:
+    @RateLimit(resource=IMPORT_DELETE_KEY,
+               client='ALL',
+               max_requests=IMPORT_DELETE_MAX_REQUESTS,
+               expire=IMPORT_DELETE_EXPIRE,
+               redis_pool=redis)
+    async def update(self, item: ShopUnitImport, date: str) -> str:
         update_shop_unit_item = ShopUnitDB(
             id=item.id,
             name=item.name,
@@ -67,8 +81,13 @@ class ShopUnitRepository(BaseRepository):
         query = shop_unit.update().where(shop_unit.c.id == update_shop_unit_item.id).values(**values)
         await self.database.execute(query=query)
 
-        return update_shop_unit_item
+        return "Вставка или обновление прошли успешно."
 
+    @RateLimit(resource=IMPORT_DELETE_KEY,
+               client='ALL',
+               max_requests=IMPORT_DELETE_MAX_REQUESTS,
+               expire=IMPORT_DELETE_EXPIRE,
+               redis_pool=redis)
     async def delete(self, id: UUID):
         query = children.select().where(children.c.parent_id == id)
         children_list = [Children.parse_obj(row) for row in await self.database.fetch_all(query)]
@@ -78,4 +97,4 @@ class ShopUnitRepository(BaseRepository):
         query = shop_unit.delete().where(shop_unit.c.id == id)
         await self.database.execute(query=query)
 
-        return "deleted"
+        return "Удаление прошло успешно."

@@ -7,12 +7,13 @@ services:
     volumes:
       - .:/app
     ports:
-      - 8000:8000
+      - 80:8000
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/yandex_db
       - SECRET_KEY=secret-key
     depends_on:
       - db
+      - redis
     restart: always
 
   db:
@@ -29,5 +30,17 @@ services:
       - POSTGRES_DB=yandex_db
     restart: always
 
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    restart: always
+    volumes:
+      - redis_data:/var/lib/redis/data/
+    environment:
+      - REDIS_URL=localhost
+      - REDIS_PORT=6379
+
 volumes:
   postgres_data:
+  redis_data:
