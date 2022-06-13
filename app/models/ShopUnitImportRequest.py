@@ -1,17 +1,17 @@
-from typing import Optional, List
+from typing import List
 from pydantic import BaseModel, validator
 from app.models.ShopUnitImport import ShopUnitImport
-from datetime import datetime
+from dateutil import parser
 
 
 class ShopUnitImportRequest(BaseModel):
     items: List[ShopUnitImport]
-    updateDate: datetime
+    updateDate: str
 
     @validator('updateDate')
     def datetime_valid(cls, dt_str):
         try:
-            datetime.fromisoformat(str(dt_str))
+            parser.parse(dt_str)
         except:
-            raise ValueError('Validation Failed')
+            raise ValueError('Data Validation Failed')
         return dt_str
