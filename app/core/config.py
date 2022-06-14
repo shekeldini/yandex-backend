@@ -10,6 +10,7 @@ DATABASE_URL = config("DATABASE_URL", cast=str, default="")
 SECRET_KEY = config("SECRET_KEY", cast=str, default="")
 REDIS_URL = config("REDIS_URL", cast=str, default="")
 REDIS_PORT = config("REDIS_PORT", cast=str, default="")
+REDIS_PASSWORD = config("REDIS_PASSWORD", cast=str, default="")
 
 IMPORT_DELETE_MAX_REQUESTS = 1000
 IMPORT_DELETE_EXPIRE = 60

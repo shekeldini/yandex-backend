@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Error(BaseModel):
-    code: int
-    message: str
+    code: int = Field(..., title=None, nullable=False)
+    message: str = Field(..., title=None, nullable=False)
