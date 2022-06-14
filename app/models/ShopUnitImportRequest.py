@@ -15,3 +15,13 @@ class ShopUnitImportRequest(BaseModel):
         except:
             raise ValueError('Data Validation Failed')
         return dt_str
+
+    @validator('items')
+    def items_valid(cls, items: List[ShopUnitImport]):
+        items_id_list = []
+        for item in items:
+            if item.id not in items_id_list:
+                items_id_list.append(item.id)
+            else:
+                raise ValueError('Duplicate id in import items')
+        return items

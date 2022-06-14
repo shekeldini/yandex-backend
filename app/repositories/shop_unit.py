@@ -41,8 +41,7 @@ class ShopUnitRepository(BaseRepository):
         values = {**update_data.dict()}
         values.pop("id", None)
         query = shop_unit.update().where(shop_unit.c.id == update_data.id).values(**values)
-        await self.database.execute(query=query)
-        return "Дата обновлена."
+        return await self.database.execute(query=query)
 
     @RateLimit(resource=IMPORT_DELETE_KEY,
                client='ALL',
@@ -59,8 +58,8 @@ class ShopUnitRepository(BaseRepository):
         )
         values = {**new_shop_unit_item.dict()}
         query = shop_unit.insert().values(**values)
-        await self.database.execute(query)
-        return "Вставка или обновление прошли успешно."
+
+        return await self.database.execute(query)
 
     @RateLimit(resource=IMPORT_DELETE_KEY,
                client='ALL',
@@ -79,9 +78,8 @@ class ShopUnitRepository(BaseRepository):
         values = {**update_shop_unit_item.dict()}
         values.pop("id", None)
         query = shop_unit.update().where(shop_unit.c.id == update_shop_unit_item.id).values(**values)
-        await self.database.execute(query=query)
 
-        return "Вставка или обновление прошли успешно."
+        return await self.database.execute(query=query)
 
     @RateLimit(resource=IMPORT_DELETE_KEY,
                client='ALL',
@@ -95,6 +93,5 @@ class ShopUnitRepository(BaseRepository):
             for child in children_list:
                 await self.delete(child.children_id)
         query = shop_unit.delete().where(shop_unit.c.id == id)
-        await self.database.execute(query=query)
 
-        return "Удаление прошло успешно."
+        return await self.database.execute(query=query)

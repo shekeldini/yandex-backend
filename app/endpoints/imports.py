@@ -15,17 +15,7 @@ async def create_shop_unit_type(
 ):
     date = shop_unit_items.updateDate
     parent_id_list = set()
-    item_list = []
     for item in shop_unit_items.items:
-        if item not in item_list:
-            item_list.append(item)
-        else:
-            raise ValueError("Duplicate Id")
-
-        if item.parentId:
-            parent_id_list.add(item.parentId)
-
-    for item in item_list:
         if await shop_unit_repository.get_by_id(item.id):
             await shop_unit_repository.update(item, date)
             await children_repository.update(item)
@@ -33,7 +23,10 @@ async def create_shop_unit_type(
             await shop_unit_repository.create(item, date)
             await children_repository.create(item)
 
+        if item.parentId:
+            parent_id_list.add(item.parentId)
+
     for parent_id in parent_id_list:
         await shop_unit_repository.update_parent(parent_id, date)
 
-    return
+    return "Вставка или обновление прошли успешно."

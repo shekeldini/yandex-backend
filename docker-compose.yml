@@ -40,6 +40,8 @@ services:
     environment:
       - REDIS_URL=localhost
       - REDIS_PORT=6379
+    expose:
+      - 6379
 
 volumes:
   postgres_data:
