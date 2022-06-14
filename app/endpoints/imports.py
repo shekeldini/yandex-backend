@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Response
+
+from .config.imports import RESPONSES, DESCRIPTION
 from .depends import get_shop_unit_repository, get_children_repository
+from ..core.utils import remove_422
 from ..models.ShopUnitImportRequest import ShopUnitImportRequest
 from ..repositories.shop_unit import ShopUnitRepository
 from ..repositories.children import ChildrenRepository
@@ -7,7 +10,11 @@ from ..repositories.children import ChildrenRepository
 router = APIRouter()
 
 
-@router.post("")
+@router.post("",
+             responses=RESPONSES,
+             response_class=Response,
+             description=DESCRIPTION)
+@remove_422
 async def create_shop_unit_type(
         shop_unit_items: ShopUnitImportRequest,
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository),
@@ -29,4 +36,4 @@ async def create_shop_unit_type(
     for parent_id in parent_id_list:
         await shop_unit_repository.update_parent(parent_id, date)
 
-    return "Вставка или обновление прошли успешно."
+    return

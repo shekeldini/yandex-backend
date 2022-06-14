@@ -28,7 +28,7 @@ class ShopUnitDB(BaseModel):
     id: UUID
     name: str
     date: str
-    shop_unit_type: ShopUnitType
+    type: ShopUnitType
     price: Optional[int] = None
 
     @validator('date')
