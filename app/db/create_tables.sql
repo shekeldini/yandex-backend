@@ -1,17 +1,10 @@
-create table if not exists shop_unit_type(
-"shop_unit_type" text,
-CONSTRAINT "K1" PRIMARY KEY ("shop_unit_type")
-);
-
 create table if not exists shop_unit(
 "id" uuid,
 "date" text not null,
 "name" text not null,
 "price" integer,
-"shop_unit_type" text not null,
-CONSTRAINT "K2" PRIMARY KEY ("id"),
-CONSTRAINT "C1" FOREIGN KEY ("shop_unit_type")
-    REFERENCES "shop_unit_type" ("shop_unit_type") ON DELETE CASCADE
+"type" text not null,
+CONSTRAINT "K2" PRIMARY KEY ("id")
 );
 
 create table if not exists childrens(

@@ -18,11 +18,11 @@ class NodesRepository(BaseRepository):
             if children_list:
                 for item in children_list:
                     children_obj = ShopUnitDB.parse_obj(await self.__get_by_id_from_db(item.children_id))
-                    is_category = children_obj.shop_unit_type == ShopUnitType.CATEGORY.value
+                    is_category = children_obj.type == ShopUnitType.CATEGORY.value
                     node = ShopUnit(
                         id=children_obj.id,
                         name=children_obj.name,
-                        type=children_obj.shop_unit_type,
+                        type=children_obj.type,
                         price=children_obj.price,
                         date=children_obj.date,
                         parentId=item.parent_id,
@@ -66,8 +66,8 @@ class NodesRepository(BaseRepository):
             id=obj.id,
             name=obj.name,
             date=obj.date,
-            type=obj.shop_unit_type,
-            price=obj.price if obj.shop_unit_type == "OFFER" else 0,
+            type=obj.type,
+            price=obj.price if obj.type == "OFFER" else 0,
             parentId=await self.__get_parent_id(obj.id),
             children=await self.__get_children(obj.id),
         )

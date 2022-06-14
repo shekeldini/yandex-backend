@@ -34,7 +34,7 @@ class ShopUnitRepository(BaseRepository):
             id=item.id,
             name=item.name,
             date=date,
-            shop_unit_type=item.shop_unit_type,
+            type=item.type,
             price=item.price
         )
         values = {**update_data.dict()}
@@ -47,7 +47,7 @@ class ShopUnitRepository(BaseRepository):
             id=item.id,
             name=item.name,
             date=date,
-            shop_unit_type=item.type,
+            type=item.type,
             price=item.price
         )
         values = {**new_shop_unit_item.dict()}
@@ -60,7 +60,7 @@ class ShopUnitRepository(BaseRepository):
             id=item.id,
             name=item.name,
             date=date,
-            shop_unit_type=item.type,
+            type=item.type,
             price=item.price
         )
 

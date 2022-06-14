@@ -1,4 +1,4 @@
-from sqlalchemy import Table, String, Column, INTEGER, ForeignKey
+from sqlalchemy import Table, String, Column, INTEGER
 from .base import metadata
 
 shop_unit = Table(
@@ -8,5 +8,5 @@ shop_unit = Table(
     Column("date", String, nullable=False),
     Column("name", String, nullable=False),
     Column("price", INTEGER, nullable=True),
-    Column("shop_unit_type", String, ForeignKey('shop_unit_type.shop_unit_type'), nullable=False)
+    Column("type", String, nullable=False)
 )

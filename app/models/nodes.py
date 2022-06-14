@@ -5,6 +5,6 @@ from pydantic.dataclasses import dataclass
 
 
 @dataclass
-class Delete:
+class Nodes:
     id: UUID = Path(example="3fa85f64-5717-4562-b3fc-2c963f66a333",
-                    description="Идентификатор")
+                    description="Идентификатор элемента")
