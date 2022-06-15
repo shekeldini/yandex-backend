@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from app.endpoints import imports, nodes, delete
-from app.db.base import database, redis
+from app.db.base import database
 from app.models.Error import Error
 
 from fastapi.exceptions import RequestValidationError, ValidationError, HTTPException
