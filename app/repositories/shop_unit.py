@@ -1,14 +1,13 @@
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
-
-from ..core.config import IMPORT_DELETE_KEY, IMPORT_DELETE_MAX_REQUESTS, IMPORT_DELETE_EXPIRE
-from ..db.base import redis
+from .children import ChildrenRepository
 from ..db.children import children
 from ..models.Children import Children
-from ..models.ShopUnit import ShopUnitDB
+from ..models.ShopUnit import ShopUnitDB, ShopUnit
 from ..db.shop_unit import shop_unit
 from .base import BaseRepository
 from ..models.ShopUnitImport import ShopUnitImport
+from ..models.ShopUnitType import ShopUnitType
 
 
 class ShopUnitRepository(BaseRepository):
@@ -52,10 +51,12 @@ class ShopUnitRepository(BaseRepository):
         )
         values = {**new_shop_unit_item.dict()}
         query = shop_unit.insert().values(**values)
+        await self.database.execute(query)
+        children_repository = ChildrenRepository(self.database)
+        await children_repository.create(item)
+        return
 
-        return await self.database.execute(query)
-
-    async def update(self, item: ShopUnitImport, date: str) -> str:
+    async def update(self, item: ShopUnitImport, date: str):
         update_shop_unit_item = ShopUnitDB(
             id=item.id,
             name=item.name,
@@ -67,8 +68,10 @@ class ShopUnitRepository(BaseRepository):
         values = {**update_shop_unit_item.dict()}
         values.pop("id", None)
         query = shop_unit.update().where(shop_unit.c.id == update_shop_unit_item.id).values(**values)
-
-        return await self.database.execute(query=query)
+        await self.database.execute(query=query)
+        children_repository = ChildrenRepository(self.database)
+        await children_repository.update(item)
+        return
 
     async def delete(self, id: UUID):
         query = children.select().where(children.c.parent_id == id)
@@ -79,3 +82,70 @@ class ShopUnitRepository(BaseRepository):
         query = shop_unit.delete().where(shop_unit.c.id == id)
 
         return await self.database.execute(query=query)
+
+    async def get_children_tree(self, id: UUID) -> List[ShopUnit]:
+        res = []
+        children_repository = ChildrenRepository(self.database)
+
+        async def get_children_for_parent(parent_id, res):
+            nonlocal children_repository
+            children_list = await children_repository.get_children_list(parent_id)
+            if children_list:
+                for item in children_list:
+                    children_obj = ShopUnitDB.parse_obj(await self.__get_by_id_from_db(item.children_id))
+                    is_category = children_obj.type == ShopUnitType.CATEGORY.value
+                    node = ShopUnit(
+                        id=children_obj.id,
+                        name=children_obj.name,
+                        type=children_obj.type,
+                        price=children_obj.price,
+                        date=children_obj.date,
+                        parentId=item.parent_id,
+                        children=[]
+                    ).dict()
+                    res.append(node)
+
+                    if is_category:
+                        await get_children_for_parent(res[-1]["id"], res[-1]["children"])
+
+                    else:
+                        res[-1]["children"] = None
+
+        await get_children_for_parent(id, res)
+        return res
+
+    async def update_price(self, id: UUID):
+        price = await self.__calculate_price(id)
+        query = shop_unit.update().where(shop_unit.c.id == id).values(price=price)
+        await self.database.execute(query=query)
+        children_repository = ChildrenRepository(self.database)
+        parent = await children_repository.get_parent(id)
+        if parent:
+            await self.update_price(parent.id)
+        return
+
+    async def __get_by_id_from_db(self, id: UUID) -> Optional[ShopUnitDB]:
+        query = shop_unit.select().where(shop_unit.c.id == id)
+        res = await self.database.fetch_one(query)
+        if res is None:
+            return None
+        obj = ShopUnitDB.parse_obj(res)
+        return obj
+
+    async def __calculate_price(self, id: UUID) -> Optional[int]:
+        def get_all_offers(root: dict, offer_list: list):
+            if root["children"]:
+                for node in root["children"]:
+                    if node["type"] == "CATEGORY":
+                        get_all_offers(node, offer_list)
+            for node in root["children"]:
+                if node["type"] == "OFFER":
+                    offer_list.append(node["price"])
+            return offer_list
+
+        def mean_list(my_list: list) -> Optional[int]:
+            return sum(my_list) // len(my_list) if my_list else None
+
+        item = await self.get_by_id(id)
+        children = await self.get_children_tree(id)
+        return mean_list(get_all_offers({**item.dict(), "children": children }, []))

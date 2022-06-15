@@ -1,6 +1,5 @@
 from fastapi import Path
 from uuid import UUID
-
 from pydantic.dataclasses import dataclass
 
 

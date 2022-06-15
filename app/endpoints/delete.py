@@ -1,11 +1,8 @@
-from uuid import UUID
-from fastapi import APIRouter, Depends, status, Response, Body, Path, Query
+from fastapi import APIRouter, Depends, status, Response
 from fastapi import HTTPException
-
 from .config.delete import RESPONSES, DESCRIPTION
 from .depends import get_shop_unit_repository
 from ..core.utils import remove_422
-from ..models.Error import Error
 from ..models.delete import Delete
 from ..repositories.shop_unit import ShopUnitRepository
 

@@ -4,6 +4,6 @@ from .base import metadata
 children = Table(
     "childrens",
     metadata,
-    Column("children_id", String, ForeignKey("shop_unit.id"), primary_key=True),
-    Column("parent_id", String, ForeignKey("shop_unit.id"), primary_key=True)
+    Column("children_id", String, primary_key=True),
+    Column("parent_id", String, primary_key=True)
 )
