@@ -31,6 +31,6 @@ async def create_shop_unit_type(
 
     for item in parent_id_list:
         await shop_unit_repository.update_parent_date(item.parentId, date)
-        if item.type == ShopUnitType.CATEGORY.value:
+        if item.type == ShopUnitType.OFFER.value:
             await shop_unit_repository.update_parent_price(item.parentId)
     return
