@@ -26,11 +26,11 @@ async def create_shop_unit_type(
         else:
             await shop_unit_repository.create(item, date)
 
-        if item.type == ShopUnitType.OFFER.value and item not in parent_id_list:
-            parent_id_list.append(item)
+        if item.parentId and item not in parent_id_list:
+            parent_id_list.append((item.type, item.parentId))
 
-    for item in parent_id_list:
-        await shop_unit_repository.update_parent_date(item.parentId, date)
-        if item.type == ShopUnitType.OFFER.value:
-            await shop_unit_repository.update_parent_price(item.parentId)
+    for type, parentId in parent_id_list:
+        await shop_unit_repository.update_parent_date(parentId, date)
+        if type == ShopUnitType.OFFER.value:
+            await shop_unit_repository.update_parent_price(parentId)
     return
