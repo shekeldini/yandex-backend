@@ -26,7 +26,7 @@ async def create_shop_unit_type(
         else:
             await shop_unit_repository.create(item, date)
 
-        if item.parentId and item not in parent_id_list:
+        if item.type == ShopUnitType.OFFER.value and item not in parent_id_list:
             parent_id_list.append(item)
 
     for item in parent_id_list:
