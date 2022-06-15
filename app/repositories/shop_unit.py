@@ -52,8 +52,9 @@ class ShopUnitRepository(BaseRepository):
         values = {**new_shop_unit_item.dict()}
         query = shop_unit.insert().values(**values)
         await self.database.execute(query)
-        children_repository = ChildrenRepository(self.database)
-        await children_repository.create(item)
+        if item.parentId:
+            children_repository = ChildrenRepository(self.database)
+            await children_repository.create(item)
         return
 
     async def update(self, item: ShopUnitImport, date: str):
