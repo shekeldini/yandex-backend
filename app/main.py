@@ -21,9 +21,9 @@ app.include_router(sales.router, prefix='/sales', tags=["Дополнитель�
 remove_422_from_app(app)
 
 
-# @app.exception_handler(RequestValidationError)
-# async def validation_exception_handler(request, exc):
-#     return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
 
 
 @app.exception_handler(HTTPException)
