@@ -14,7 +14,7 @@ router = APIRouter()
              response_class=Response,
              description=DESCRIPTION)
 @remove_422
-async def create_shop_unit_type(
+async def import_shop_unit(
         shop_unit_items: ShopUnitImportRequest,
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository)
 ):

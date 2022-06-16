@@ -1,8 +1,8 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 from pydantic import BaseModel, validator
 from app.models.ShopUnitType import ShopUnitType
-from dateutil import parser
 
 
 class ShopUnitStatisticUnit(BaseModel):
@@ -11,12 +11,12 @@ class ShopUnitStatisticUnit(BaseModel):
     parentId: Optional[UUID] = None
     type: ShopUnitType
     price: int
-    date: str
+    date: datetime
 
-    @validator('updateDate')
-    def datetime_valid(cls, dt_str):
+    @validator('date')
+    def datetime_valid(cls, dt_str: datetime):
         try:
-            parser.parse(dt_str)
+            dt_str.isoformat()
         except:
             raise ValueError('Validation Failed')
-        return dt_str
+        return dt_str.strftime("%Y-%m-%dT%H:%M:%S.000Z")

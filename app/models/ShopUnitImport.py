@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Optional, Any, Type
+from typing import Optional, Any
 from uuid import UUID
 from pydantic import BaseModel, root_validator
 

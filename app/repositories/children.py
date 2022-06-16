@@ -1,10 +1,8 @@
 from typing import List, Optional
 from uuid import UUID
-from ..db.shop_unit import shop_unit
 from ..models.Children import Children
 from ..db.children import children
 from .base import BaseRepository
-from ..models.ShopUnit import ShopUnitDB
 from ..models.ShopUnitImport import ShopUnitImport
 
 

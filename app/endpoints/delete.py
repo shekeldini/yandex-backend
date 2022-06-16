@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from .config.delete import RESPONSES, DESCRIPTION
 from .depends import get_shop_unit_repository
 from ..core.utils import remove_422
-from ..models.delete import Delete
+from ..models.delete import DeleteId
 from ..repositories.shop_unit import ShopUnitRepository
 
 router = APIRouter()
@@ -14,8 +14,8 @@ router = APIRouter()
                response_class=Response,
                description=DESCRIPTION)
 @remove_422
-async def read_node_by_id(
-        model: Delete = Depends(),
+async def delete(
+        model: DeleteId = Depends(),
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository)
 ):
     if await shop_unit_repository.get_by_id(model.id):

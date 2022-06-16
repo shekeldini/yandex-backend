@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from app.endpoints import imports, nodes, delete
+from app.endpoints import imports, nodes, delete, sales
 from app.db.base import database
 from app.models.Error import Error
 
@@ -14,15 +14,16 @@ app = FastAPI(
     description="Вступительное задание в Летнюю Школу Бэкенд Разработки Яндекса 2022"
 )
 
-app.include_router(imports.router, prefix='/imports', tags=["imports"])
-app.include_router(nodes.router, prefix='/nodes', tags=["nodes"])
-app.include_router(delete.router, prefix='/delete', tags=["delete"])
+app.include_router(imports.router, prefix='/imports', tags=["Базовые задачи"])
+app.include_router(nodes.router, prefix='/nodes', tags=["Базовые задачи"])
+app.include_router(delete.router, prefix='/delete', tags=["Базовые задачи"])
+app.include_router(sales.router, prefix='/sales', tags=["Дополнительные задачи"])
 remove_422_from_app(app)
 
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
+# @app.exception_handler(RequestValidationError)
+# async def validation_exception_handler(request, exc):
+#     return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
 
 
 @app.exception_handler(HTTPException)
