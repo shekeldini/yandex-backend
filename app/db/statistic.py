@@ -7,7 +7,7 @@ statistic = Table(
     Column("id", String),
     Column("name", String),
     Column("date", DateTime),
-    Column("parentId", String),
+    Column("parent_id", String),
     Column("price", INTEGER),
     Column("type", String),
 )

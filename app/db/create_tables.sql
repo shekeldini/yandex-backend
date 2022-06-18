@@ -21,7 +21,7 @@ CREATE TABLE statistic(
 "id" uuid,
 "name" text,
 "date" timestamp,
-"parentId" uuid,
+"parent_id" uuid,
 "price" integer,
 "type" text,
 CONSTRAINT "C4" FOREIGN KEY ("id")

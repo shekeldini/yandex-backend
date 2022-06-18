@@ -12,7 +12,7 @@ class ShopUnitStatisticUnit(BaseModel):
     name: str
     parentId: Optional[UUID] = None
     type: ShopUnitType
-    price: int
+    price: Optional[int] = None
     date: datetime
 
     @validator('date')

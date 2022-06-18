@@ -10,7 +10,7 @@ from ..repositories.shop_unit import ShopUnitRepository
 router = APIRouter()
 
 
-@router.get("{id}/statistic",
+@router.get("/{id}/statistic",
             responses=RESPONSES,
             response_model=ShopUnitStatisticResponse,
             description=DESCRIPTION)

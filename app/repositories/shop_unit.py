@@ -123,7 +123,7 @@ class ShopUnitRepository(BaseRepository):
             id=id,
             name=name,
             date=date,
-            parentId=parentId,
+            parent_id=parentId,
             price=price,
             type=type
         )

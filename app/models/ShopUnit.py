@@ -62,7 +62,7 @@ class ShopUnitDump(BaseModel):
     id: UUID
     name: str
     date: datetime
-    parentId: Optional[UUID] = None
+    parent_id: Optional[UUID] = None
     price: Optional[int] = None
     type: ShopUnitType
 
