@@ -26,7 +26,7 @@ class ShopUnit(BaseModel):
         return date.strftime(date.strftime(DATE_TIME_FORMAT))
 
 
-class ShopUnitDB(BaseModel):
+class ShopUnitSelect(BaseModel):
     id: UUID
     name: str
     date: datetime
@@ -40,3 +40,36 @@ class ShopUnitDB(BaseModel):
         except:
             raise ValueError('Validation Failed')
         return date.strftime(date.strftime(DATE_TIME_FORMAT))
+
+
+class ShopUnitInsert(BaseModel):
+    id: UUID
+    name: str
+    date: datetime
+    type: ShopUnitType
+    price: Optional[int] = None
+
+    @validator('date')
+    def datetime_valid(cls, date: datetime):
+        try:
+            date.isoformat()
+        except:
+            raise ValueError('Validation Failed')
+        return date.replace(tzinfo=None)
+
+
+class ShopUnitDump(BaseModel):
+    id: UUID
+    name: str
+    date: datetime
+    parentId: Optional[UUID] = None
+    price: Optional[int] = None
+    type: ShopUnitType
+
+    @validator('date')
+    def datetime_valid(cls, date: datetime):
+        try:
+            date.isoformat()
+        except:
+            raise ValueError('Validation Failed')
+        return date.replace(tzinfo=None)

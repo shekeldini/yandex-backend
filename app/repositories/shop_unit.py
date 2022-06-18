@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 from .children import ChildrenRepository
-from ..core.config import DATE_TIME_FORMAT
+from ..db.statistic import statistic
 from ..db.children import children
 from ..models.Children import Children
-from ..models.ShopUnit import ShopUnitDB, ShopUnit
+from ..models.ShopUnit import ShopUnitInsert, ShopUnit, ShopUnitSelect, ShopUnitDump
 from ..db.shop_unit import shop_unit
 from .base import BaseRepository
 from ..models.ShopUnitImport import ShopUnitImport
@@ -13,25 +13,26 @@ from ..models.ShopUnitType import ShopUnitType
 
 
 class ShopUnitRepository(BaseRepository):
-    async def get_by_id(self, id: UUID) -> Optional[ShopUnitDB]:
+    async def get_by_id(self, id: UUID) -> Optional[ShopUnitSelect]:
         query = shop_unit.select().where(shop_unit.c.id == id)
         res = await self.database.fetch_one(query)
         if res is None:
             return None
-        return ShopUnitDB.parse_obj(res)
+        return ShopUnitSelect.parse_obj(res)
 
-    async def update_parent_date(self, child_id: UUID, date: datetime):
+    async def get_all_parents_for_parent(self, child_id: UUID, updated_id: list):
+        updated_id.append(child_id)
         query = children.select().where(children.c.children_id == child_id)
         res = await self.database.fetch_one(query)
         if res:
             child = Children.parse_obj(res)
-            await self.update_parent_date(child.parent_id, date)
-        item = await self.get_by_id(child_id)
-        return await self.update_date(item, date)
+            await self.get_all_parents_for_parent(child.parent_id, updated_id)
 
-    async def update_date(self, item: ShopUnitDB, date: datetime):
+        return updated_id
 
-        update_data = ShopUnitDB(
+    async def update_date(self, id: UUID, date: datetime):
+        item = await self.get_by_id(id)
+        update_data = ShopUnitInsert(
             id=item.id,
             name=item.name,
             date=date,
@@ -41,10 +42,19 @@ class ShopUnitRepository(BaseRepository):
         values = {**update_data.dict()}
         values.pop("id", None)
         query = shop_unit.update().where(shop_unit.c.id == update_data.id).values(**values)
-        return await self.database.execute(query=query)
+        await self.database.execute(query=query)
+        children_repository = ChildrenRepository(self.database)
+        return await self.create_dump(
+            id=item.id,
+            name=item.name,
+            date=date,
+            parentId=await children_repository.get_parent_id(item.id),
+            price=item.price,
+            type=item.type
+        )
 
     async def create(self, item: ShopUnitImport, date: datetime):
-        new_shop_unit_item = ShopUnitDB(
+        new_shop_unit_item = ShopUnitInsert(
             id=item.id,
             name=item.name,
             date=date,
@@ -57,10 +67,18 @@ class ShopUnitRepository(BaseRepository):
         if item.parentId:
             children_repository = ChildrenRepository(self.database)
             await children_repository.create(item)
-        return
+        children_repository = ChildrenRepository(self.database)
+        return await self.create_dump(
+            id=item.id,
+            name=item.name,
+            date=date,
+            parentId=await children_repository.get_parent_id(item.id),
+            price=item.price,
+            type=item.type
+        )
 
-    async def update(self, item: ShopUnitImport, date: datetime):
-        update_shop_unit_item = ShopUnitDB(
+    async def update(self, item: ShopUnitImport, date: datetime, dump=True):
+        update_shop_unit_item = ShopUnitInsert(
             id=item.id,
             name=item.name,
             date=date,
@@ -70,7 +88,18 @@ class ShopUnitRepository(BaseRepository):
         values = {**update_shop_unit_item.dict()}
         values.pop("id", None)
         query = shop_unit.update().where(shop_unit.c.id == update_shop_unit_item.id).values(**values)
-        return await self.database.execute(query=query)
+        await self.database.execute(query=query)
+        children_repository = ChildrenRepository(self.database)
+        if dump:
+            await self.create_dump(
+                id=item.id,
+                name=item.name,
+                date=date,
+                parentId=await children_repository.get_parent_id(item.id),
+                price=item.price,
+                type=item.type
+            )
+        return
 
     async def delete(self, id: UUID):
         query = children.select().where(children.c.parent_id == id)
@@ -81,6 +110,27 @@ class ShopUnitRepository(BaseRepository):
         query = shop_unit.delete().where(shop_unit.c.id == id)
         return await self.database.execute(query=query)
 
+    async def create_dump(
+            self,
+            id: UUID,
+            name: str,
+            date: datetime,
+            parentId: UUID,
+            price: Optional[int],
+            type: str
+    ):
+        new_dump = ShopUnitDump(
+            id=id,
+            name=name,
+            date=date,
+            parentId=parentId,
+            price=price,
+            type=type
+        )
+        values = {**new_dump.dict()}
+        query = statistic.insert().values(**values)
+        return await self.database.execute(query)
+
     async def get_children_tree(self, id: UUID) -> List[ShopUnit]:
         res = []
         children_repository = ChildrenRepository(self.database)
@@ -90,7 +140,7 @@ class ShopUnitRepository(BaseRepository):
             children_list = await children_repository.get_children_list(parent_id)
             if children_list:
                 for item in children_list:
-                    children_obj = ShopUnitDB.parse_obj(await self.__get_by_id_from_db(item.children_id))
+                    children_obj = ShopUnitSelect.parse_obj(await self.get_by_id(item.children_id))
                     is_category = children_obj.type == ShopUnitType.CATEGORY.value
                     node = ShopUnit(
                         id=children_obj.id,
@@ -142,8 +192,7 @@ class ShopUnitRepository(BaseRepository):
                 type=root.type,
                 price=root_price
             )
-            await self.update(update_item, root.date)
-
+            await self.update(update_item, root.date, dump=False)
             await add_in_list_from_another_list(temp_list, branch_sum_list)
             return sum_list
 
@@ -166,12 +215,4 @@ class ShopUnitRepository(BaseRepository):
             type=data.type,
             price=root_price
         )
-        return await self.update(update_item, data.date)
-
-    async def __get_by_id_from_db(self, id: UUID) -> Optional[ShopUnitDB]:
-        query = shop_unit.select().where(shop_unit.c.id == id)
-        res = await self.database.fetch_one(query)
-        if res is None:
-            return None
-        obj = ShopUnitDB.parse_obj(res)
-        return obj
+        return await self.update(update_item, data.date, dump=False)

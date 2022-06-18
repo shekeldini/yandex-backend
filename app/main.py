@@ -1,11 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from app.endpoints import imports, nodes, delete, sales
+from app.endpoints import imports, nodes, delete, sales, node
 from app.db.base import database
 from app.models.Error import Error
-
-from fastapi.exceptions import RequestValidationError, ValidationError, HTTPException
+from fastapi.exceptions import RequestValidationError, HTTPException
 from app.core.utils import TooManyRequests, remove_422_from_app
 
 app = FastAPI(
@@ -18,6 +17,8 @@ app.include_router(imports.router, prefix='/imports', tags=["Базовые за
 app.include_router(nodes.router, prefix='/nodes', tags=["Базовые задачи"])
 app.include_router(delete.router, prefix='/delete', tags=["Базовые задачи"])
 app.include_router(sales.router, prefix='/sales', tags=["Дополнительные задачи"])
+app.include_router(node.router, prefix='/node', tags=["Дополнительные задачи"])
+
 remove_422_from_app(app)
 
 

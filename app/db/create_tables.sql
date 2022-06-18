@@ -1,6 +1,6 @@
 create table if not exists shop_unit(
 "id" uuid,
-"date" text not null,
+"date" timestamp not null,
 "name" text not null,
 "price" integer,
 "type" text not null,
@@ -17,4 +17,13 @@ CONSTRAINT "C3" FOREIGN KEY ("parent_id")
     REFERENCES "shop_unit" ("id") ON DELETE CASCADE
 );
 
-CREATE TABLE statistic (LIKE shop_unit INCLUDING ALL);
+CREATE TABLE statistic(
+"id" uuid,
+"name" text,
+"date" timestamp,
+"parentId" uuid,
+"price" integer,
+"type" text,
+CONSTRAINT "C4" FOREIGN KEY ("id")
+    REFERENCES "shop_unit" ("id") ON DELETE CASCADE
+);

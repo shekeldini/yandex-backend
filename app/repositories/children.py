@@ -1,8 +1,11 @@
 from typing import List, Optional
 from uuid import UUID
+
+from ..db.shop_unit import shop_unit
 from ..models.Children import Children
 from ..db.children import children
 from .base import BaseRepository
+from ..models.ShopUnit import ShopUnitSelect
 from ..models.ShopUnitImport import ShopUnitImport
 
 
@@ -37,9 +40,16 @@ class ChildrenRepository(BaseRepository):
 
     async def have_children(self, parent_id: UUID) -> bool:
         query = children.select().where(children.c.parent_id == parent_id)
-        res = await self.database.fetch_all(query)
-        if res:
-            return True
+        children_list = await self.database.fetch_all(query)
+        for row in children_list:
+
+            item = Children.parse_obj(row)
+            query = shop_unit.select().where(shop_unit.c.id == item.children_id)
+            res = ShopUnitSelect.parse_obj(await self.database.fetch_one(query))
+            if res.type == "OFFER":
+                return True
+            else:
+                await self.have_children(res.id)
         return False
 
     async def get_root_category_id(self, children_id: UUID) -> UUID:

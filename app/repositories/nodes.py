@@ -1,6 +1,6 @@
 from typing import Optional
 from uuid import UUID
-from ..models.ShopUnit import ShopUnitDB, ShopUnit
+from ..models.ShopUnit import ShopUnitSelect, ShopUnit
 from ..db.shop_unit import shop_unit
 from .base import BaseRepository
 from ..models.ShopUnitType import ShopUnitType
@@ -9,13 +9,12 @@ from .shop_unit import ShopUnitRepository
 
 
 class NodesRepository(BaseRepository):
-
     async def get_by_id(self, id: UUID) -> Optional[ShopUnit]:
         query = shop_unit.select().where(shop_unit.c.id == id)
         res = await self.database.fetch_one(query)
         if res is None:
             return None
-        obj = ShopUnitDB.parse_obj(res)
+        obj = ShopUnitSelect.parse_obj(res)
         children_repository = ChildrenRepository(self.database)
         shop_unit_repository = ShopUnitRepository(self.database)
         response = ShopUnit(

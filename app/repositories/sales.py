@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from .base import BaseRepository
-from ..core.config import DATE_TIME_FORMAT
 from ..models.ShopUnitStatisticResponse import ShopUnitStatisticResponse
 from ..models.ShopUnitStatisticUnit import ShopUnitStatisticUnit
 
@@ -15,14 +14,18 @@ class SalesRepository(BaseRepository):
         AND shop_unit.type = 'OFFER';
         """
 
-
         values = {
-            "first_date": date.strftime(DATE_TIME_FORMAT),
+            "first_date": date.replace(tzinfo=None),
             "second_date": (
-                    date + timedelta(hours=24)
-            ).strftime(DATE_TIME_FORMAT)
+                (date + timedelta(hours=24)).replace(tzinfo=None)
+            )
         }
         res = await self.database.fetch_all(query, values)
         if not res:
             return ShopUnitStatisticResponse(items=[])
-        return ShopUnitStatisticResponse(items=[ShopUnitStatisticUnit.parse_obj(row) for row in res])
+        items = []
+        for row in res:
+            item = ShopUnitStatisticUnit.parse_obj(row)
+            item.parentId = row[-1]
+            items.append(item)
+        return ShopUnitStatisticResponse(items=items)
