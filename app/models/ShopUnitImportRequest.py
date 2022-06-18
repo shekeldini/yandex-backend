@@ -9,12 +9,12 @@ class ShopUnitImportRequest(BaseModel):
     updateDate: datetime
 
     @validator('updateDate')
-    def datetime_valid(cls, dt_str: datetime):
+    def datetime_valid(cls, date: datetime):
         try:
-            dt_str.isoformat()
+            date.isoformat()
         except:
             raise ValueError('Validation Failed')
-        return dt_str.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        return date
 
     @validator('items')
     def items_valid(cls, items: List[ShopUnitImport]):

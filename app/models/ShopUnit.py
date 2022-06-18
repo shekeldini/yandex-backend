@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 from pydantic import BaseModel, validator
+
+from app.core.config import DATE_TIME_FORMAT
 from app.models.ShopUnitType import ShopUnitType
 
 
@@ -16,12 +18,12 @@ class ShopUnit(BaseModel):
     children: Optional[List[ShopUnit]] = None
 
     @validator('date')
-    def datetime_valid(cls, dt_str: datetime):
+    def datetime_valid(cls, date: datetime):
         try:
-            dt_str.isoformat()
+            date.isoformat()
         except:
             raise ValueError('Validation Failed')
-        return dt_str.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        return date.strftime(date.strftime(DATE_TIME_FORMAT))
 
 
 class ShopUnitDB(BaseModel):
@@ -32,9 +34,9 @@ class ShopUnitDB(BaseModel):
     price: Optional[int] = None
 
     @validator('date')
-    def datetime_valid(cls, dt_str: datetime):
+    def datetime_valid(cls, date: datetime):
         try:
-            dt_str.isoformat()
+            date.isoformat()
         except:
             raise ValueError('Validation Failed')
-        return dt_str.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        return date.strftime(date.strftime(DATE_TIME_FORMAT))

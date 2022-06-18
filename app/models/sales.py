@@ -12,9 +12,9 @@ class SalesDate:
                                        "Если дата не удовлетворяет данному формату, необходимо отвечать 400")
 
     @validator('date')
-    def datetime_valid(cls, dt_str: datetime) -> str:
+    def datetime_valid(cls, date: datetime):
         try:
-            dt_str.isoformat()
+            date.isoformat()
         except:
             raise ValueError('Validation Failed')
-        return dt_str.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        return date

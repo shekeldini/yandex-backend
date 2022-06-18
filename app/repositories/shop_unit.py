@@ -1,6 +1,8 @@
+from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 from .children import ChildrenRepository
+from ..core.config import DATE_TIME_FORMAT
 from ..db.children import children
 from ..models.Children import Children
 from ..models.ShopUnit import ShopUnitDB, ShopUnit
@@ -18,7 +20,7 @@ class ShopUnitRepository(BaseRepository):
             return None
         return ShopUnitDB.parse_obj(res)
 
-    async def update_parent_date(self, child_id: UUID, date: str):
+    async def update_parent_date(self, child_id: UUID, date: datetime):
         query = children.select().where(children.c.children_id == child_id)
         res = await self.database.fetch_one(query)
         if res:
@@ -27,7 +29,7 @@ class ShopUnitRepository(BaseRepository):
         item = await self.get_by_id(child_id)
         return await self.update_date(item, date)
 
-    async def update_date(self, item: ShopUnitDB, date: str):
+    async def update_date(self, item: ShopUnitDB, date: datetime):
 
         update_data = ShopUnitDB(
             id=item.id,
@@ -41,7 +43,7 @@ class ShopUnitRepository(BaseRepository):
         query = shop_unit.update().where(shop_unit.c.id == update_data.id).values(**values)
         return await self.database.execute(query=query)
 
-    async def create(self, item: ShopUnitImport, date: str):
+    async def create(self, item: ShopUnitImport, date: datetime):
         new_shop_unit_item = ShopUnitDB(
             id=item.id,
             name=item.name,
@@ -57,7 +59,7 @@ class ShopUnitRepository(BaseRepository):
             await children_repository.create(item)
         return
 
-    async def update(self, item: ShopUnitImport, date: str):
+    async def update(self, item: ShopUnitImport, date: datetime):
         update_shop_unit_item = ShopUnitDB(
             id=item.id,
             name=item.name,
@@ -77,7 +79,6 @@ class ShopUnitRepository(BaseRepository):
             for child in children_list:
                 await self.delete(child.children_id)
         query = shop_unit.delete().where(shop_unit.c.id == id)
-
         return await self.database.execute(query=query)
 
     async def get_children_tree(self, id: UUID) -> List[ShopUnit]:

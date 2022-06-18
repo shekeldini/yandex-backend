@@ -1,14 +1,12 @@
 from datetime import datetime, timedelta
-
-from dateutil import parser
-
 from .base import BaseRepository
+from ..core.config import DATE_TIME_FORMAT
 from ..models.ShopUnitStatisticResponse import ShopUnitStatisticResponse
 from ..models.ShopUnitStatisticUnit import ShopUnitStatisticUnit
 
 
 class SalesRepository(BaseRepository):
-    async def get_sales(self, date: str) -> ShopUnitStatisticResponse:
+    async def get_sales(self, date: datetime) -> ShopUnitStatisticResponse:
         query = """
         SELECT id, name, date, type, price, parent_id
         FROM shop_unit
@@ -19,10 +17,10 @@ class SalesRepository(BaseRepository):
 
 
         values = {
-            "first_date": date,
+            "first_date": date.strftime(DATE_TIME_FORMAT),
             "second_date": (
-                    datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.000Z") + timedelta(hours=24)
-            ).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+                    date + timedelta(hours=24)
+            ).strftime(DATE_TIME_FORMAT)
         }
         res = await self.database.fetch_all(query, values)
         if not res:
