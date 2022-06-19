@@ -1,6 +1,6 @@
 import uvicorn
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, HTMLResponse
 from app.endpoints import imports, nodes, delete, sales, node
 from app.db.base import database
 from app.models.Error import Error
@@ -28,12 +28,12 @@ async def validation_exception_handler(request, exc):
 
 
 @app.exception_handler(HTTPException)
-async def validation_exception_handler(request, exc):
+async def item_not_found_exception_handler(request, exc):
     return JSONResponse(Error(code=404, message="Item not found").dict(), status_code=exc.status_code)
 
 
 @app.exception_handler(TooManyRequests)
-async def validation_exception_handler(request, exc):
+async def too_many_requests_exception_handler(request, exc):
     return JSONResponse(Error(code=429, message="Too many requests").dict(), status_code=429)
 
 
@@ -47,9 +47,18 @@ async def shutdown():
     await database.disconnect()
 
 
-@app.get("/")
-async def read_root():
-    return {"hello": "world"}
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return f"""
+        <html>
+            <head>
+                <title>Root</title>
+            </head>
+            <body>
+                <a href='{request.base_url._url + "docs"}'> Swagger</a>
+            </body>
+        </html>
+        """
 
 
 if __name__ == "__main__":
