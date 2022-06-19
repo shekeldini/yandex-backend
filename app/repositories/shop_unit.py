@@ -87,6 +87,9 @@ class ShopUnitRepository(BaseRepository):
         )
         values = {**update_shop_unit_item.dict()}
         values.pop("id", None)
+        if update_shop_unit_item.type.value == ShopUnitType.CATEGORY.value:
+            values.pop("price", None)
+            print(values)
         query = shop_unit.update().where(shop_unit.c.id == update_shop_unit_item.id).values(**values)
         await self.database.execute(query=query)
         children_repository = ChildrenRepository(self.database)
