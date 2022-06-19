@@ -22,7 +22,7 @@ DELETE_EXPIRE = timedelta(minutes=60)
 DELETE_KEY = "DELETE"
 
 INFO_MAX_REQUESTS = 100
-INFO_EXPIRE = 1
+INFO_EXPIRE = timedelta(minutes=1)
 INFO_KEY = "INFO"
 
 DATE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.000Z"
