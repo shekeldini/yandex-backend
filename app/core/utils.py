@@ -14,9 +14,8 @@ class TooManyRequests(Exception):
 
 def rate_limiter(func, redis: Redis, key: str, limit: int, period: timedelta):
     def request_is_limited(r: Redis, key: str, limit: int, period: timedelta):
-        print(f"In func")
         period_in_seconds = int(period.total_seconds())
-        t = r.time()
+        t = r.time()[0]
         separation = round(period_in_seconds / limit)
         r.setnx(key, 0)
         try:
@@ -36,6 +35,23 @@ def rate_limiter(func, redis: Redis, key: str, limit: int, period: timedelta):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def request_is_limited(r: Redis, key: str, limit: int, period: timedelta):
+    period_in_seconds = int(period.total_seconds())
+    t = r.time()[0]
+    separation = round(period_in_seconds / limit)
+    r.setnx(key, 0)
+    try:
+        with r.lock('lock:' + key, blocking_timeout=separation) as lock:
+            tat = max(int(r.get(key)), t)
+            if tat - t <= period_in_seconds - separation:
+                new_tat = max(tat, t) + separation
+                r.set(key, new_tat)
+                return False
+            return True
+    except LockError:
+        return True
 
 
 def remove_422_from_app(app: FastAPI) -> None:

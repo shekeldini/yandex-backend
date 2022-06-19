@@ -110,6 +110,7 @@ class ShopUnitRepository(BaseRepository):
         query = shop_unit.delete().where(shop_unit.c.id == id)
         return await self.database.execute(query=query)
 
+
     async def create_dump(
             self,
             id: UUID,

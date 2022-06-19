@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Request
 from .config.imports import RESPONSES, DESCRIPTION
 from .depends import get_shop_unit_repository, get_children_repository
-from ..core.utils import remove_422
+from ..core.config import IMPORT_KEY, IMPORT_MAX_REQUESTS, IMPORT_EXPIRE
+from ..core.utils import remove_422, request_is_limited, TooManyRequests
+from ..db.base import redis
 from ..models.ShopUnitImportRequest import ShopUnitImportRequest
 from ..models.ShopUnitType import ShopUnitType
 from ..repositories.children import ChildrenRepository
@@ -17,6 +19,7 @@ router = APIRouter()
 @remove_422
 async def import_shop_unit(
         shop_unit_items: ShopUnitImportRequest,
+        request: Request,
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository),
         children_repository: ChildrenRepository = Depends(get_children_repository)
 ):
@@ -25,18 +28,27 @@ async def import_shop_unit(
         "price": [],
         "date": []
     }
+    limited = False
     for item in shop_unit_items.items:
-        if await shop_unit_repository.get_by_id(item.id):
-            await shop_unit_repository.update(item, date)
+        if not request_is_limited(
+                r=redis,
+                key=IMPORT_KEY + request.client.host,
+                limit=IMPORT_MAX_REQUESTS,
+                period=IMPORT_EXPIRE
+        ):
+            if await shop_unit_repository.get_by_id(item.id):
+                await shop_unit_repository.update(item, date)
+            else:
+                await shop_unit_repository.create(item, date)
+
+            if item.parentId and item.type == ShopUnitType.OFFER.value and item.parentId not in need_update["price"]:
+                need_update["price"].append(item.parentId)
+
+            if item.parentId and item.parentId not in need_update["date"]:
+                need_update["date"].append(item.parentId)
         else:
-            await shop_unit_repository.create(item, date)
-
-        if item.parentId and item.type == ShopUnitType.OFFER.value and item.parentId not in need_update["price"]:
-            need_update["price"].append(item.parentId)
-
-        if item.parentId and item.parentId not in need_update["date"]:
-            need_update["date"].append(item.parentId)
-
+            limited = True
+            break
     price_updated = set()
     date_updated = set()
 
@@ -53,4 +65,6 @@ async def import_shop_unit(
                 if id not in date_updated:
                     await shop_unit_repository.update_date(id, date)
                     date_updated.add(id)
+    if limited:
+        raise TooManyRequests()
     return
