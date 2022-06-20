@@ -77,7 +77,7 @@ class ShopUnitRepository(BaseRepository):
             type=item.type
         )
 
-    async def update(self, item: ShopUnitImport, date: datetime, dump=True):
+    async def update(self, item: ShopUnitImport, date: datetime, dump=True, update_price=False):
         update_shop_unit_item = ShopUnitInsert(
             id=item.id,
             name=item.name,
@@ -87,9 +87,8 @@ class ShopUnitRepository(BaseRepository):
         )
         values = {**update_shop_unit_item.dict()}
         values.pop("id", None)
-        if update_shop_unit_item.type.value == ShopUnitType.CATEGORY.value:
+        if not update_price and update_shop_unit_item.type.value == ShopUnitType.CATEGORY.value:
             values.pop("price", None)
-            print(values)
         query = shop_unit.update().where(shop_unit.c.id == update_shop_unit_item.id).values(**values)
         await self.database.execute(query=query)
         children_repository = ChildrenRepository(self.database)
@@ -112,7 +111,6 @@ class ShopUnitRepository(BaseRepository):
                 await self.delete(child.children_id)
         query = shop_unit.delete().where(shop_unit.c.id == id)
         return await self.database.execute(query=query)
-
 
     async def create_dump(
             self,
@@ -168,41 +166,25 @@ class ShopUnitRepository(BaseRepository):
 
     async def update_parent_price(self, id: UUID):
         async def mean_list(my_list: list):
-            return sum(my_list) // len(my_list) if my_list else 0
+            return sum(my_list) // len(my_list) if my_list else None
 
-        async def merge_list(temp_list, branch_sum):
-            res = []
-            res += temp_list
-            res += branch_sum
-            return res
-
-        async def update(root: ShopUnit, sum_list: list, branch_sum_list: list):
-            branch_sum_list.clear()
-            if root.children:
-                for node in root.children:
-                    if node.type == "CATEGORY":
-                        await update(node, sum_list, branch_sum_list)
-
-            temp_list = []
+        async def update(root: ShopUnit):
+            offer_for_node = []
             for node in root.children:
                 if node.type == "OFFER":
-                    sum_list.append(node.price)
-                    temp_list.append(node.price)
-            root_price = await mean_list(await merge_list(temp_list, branch_sum_list))
+                    offer_for_node.append(node.price)
+                if node.type == "CATEGORY":
+                    offer_for_node += await update(node)
+
             update_item = ShopUnitImport.unvalidated(
                 id=root.id,
                 name=root.name,
                 parentId=root.parentId,
                 type=root.type,
-                price=root_price
+                price=await mean_list(offer_for_node)
             )
-            await self.update(update_item, root.date, dump=False)
-            await add_in_list_from_another_list(temp_list, branch_sum_list)
-            return sum_list
-
-        async def add_in_list_from_another_list(add_from: list, add_to: list):
-            for i in add_from:
-                add_to.append(i)
+            await self.update(update_item, root.date, dump=False, update_price=True)
+            return offer_for_node
 
         children_repository = ChildrenRepository(self.database)
 
@@ -211,12 +193,5 @@ class ShopUnitRepository(BaseRepository):
         item = await self.get_by_id(root_category_id)
         children_list = await self.get_children_tree(root_category_id)
         data = ShopUnit.parse_obj({**item.dict(), "children": children_list})
-        root_price = await mean_list(await update(data, [], []))
-        update_item = ShopUnitImport.unvalidated(
-            id=data.id,
-            name=data.name,
-            parentId=data.parentId,
-            type=data.type,
-            price=root_price
-        )
-        return await self.update(update_item, data.date, dump=False)
+
+        return await update(data)

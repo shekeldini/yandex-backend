@@ -54,6 +54,7 @@ async def import_shop_unit(
 
     for parentId in need_update["price"]:
         root_parent_id = await children_repository.get_root_category_id(parentId)
+        # print(root_parent_id)
         if root_parent_id not in price_updated:
             await shop_unit_repository.update_parent_price(parentId)
             price_updated.add(root_parent_id)
