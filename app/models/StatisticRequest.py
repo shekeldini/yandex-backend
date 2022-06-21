@@ -31,6 +31,7 @@ class StatisticRequest:
     @root_validator
     def date_validation(cls, values):
         date_start, date_end = values.get("dateStart"), values.get("dateEnd")
-        if date_start and date_end and date_start < date_end:
-            return values
-        raise ValueError('Validation Failed')
+        if date_start and date_end and date_start > date_end:
+            raise ValueError('Validation Failed')
+        return values
+

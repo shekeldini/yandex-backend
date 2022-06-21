@@ -207,16 +207,14 @@ class TestImport:
 
     ]
     _ROOT_ID = "b7112a5a-f065-11ec-8ea0-0242ac120002"
+    _NEW_ROOT_ID = "5747cd46-f131-11ec-8ea0-0242ac120002"
 
     @staticmethod
-    def correct_data_test(print_info=True):
+    def correct_data_test():
         for index, batch in enumerate(TestImport._CORRECT_DATA):
-            if print_info:
-                print(f"Importing batch {index}")
             status, _ = request("/imports", method="POST", data=batch)
 
             assert status == 200, f"Expected HTTP status code 200, got {status}"
-        if print_info:
             print("Test: 'import' passed.")
 
     @staticmethod
@@ -231,7 +229,7 @@ class TestImport:
                     "children": []
                 }
             ],
-            "updateDate": "2022-06-21T12:00:00.000Z"
+            "updateDate": "2022-06-11T14:00:00.000Z"
         }
         status, _ = request("/imports", method="POST", data=import_data)
 
@@ -247,14 +245,13 @@ class TestImport:
                     "children": []
                 }
             ],
-            "updateDate": "2022-06-10T12:00:00.000Z"
+            "updateDate": "2022-06-11T14:00:00.000Z"
         }
 
         status, _ = request("/imports", method="POST", data=import_data)
 
         assert status == 200, f"Expected HTTP status code 200, got {status}"
         print("Test: 'update root' passed.")
-        return "5747cd46-f131-11ec-8ea0-0242ac120002"
 
     @staticmethod
     def parent_not_found():
@@ -418,10 +415,9 @@ class TestImport:
         print("Test: 'invalid date' passed")
 
     @staticmethod
-    def test_all():
+    def test_all(delete_after=True):
         TestImport.correct_data_test()
-        new_root = TestImport.update_root()
-        TestDelete.test_delete(new_root, print_info=False)
+        TestImport.update_root()
         TestImport.parent_not_found()
         TestImport.duplicate_id()
         TestImport.invalid_offer_price()
@@ -430,4 +426,6 @@ class TestImport:
         TestImport.offer_has_no_price()
         TestImport.change_type()
         TestImport.invalid_date()
+        if delete_after:
+            TestDelete.test_delete(TestImport._NEW_ROOT_ID, print_info=False)
 

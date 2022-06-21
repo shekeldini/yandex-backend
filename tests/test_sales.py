@@ -3,6 +3,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from tests.test_delete import TestDelete
+from tests.test_import import TestImport
 from tests.utils import request, sort_items, print_diff
 
 
@@ -151,9 +153,10 @@ class TestSales:
             }
         ]
     }
+    _ROOT_ID = "b7112a5a-f065-11ec-8ea0-0242ac120002"
 
     @staticmethod
-    def test_sales():
+    def test_1():
         params = urllib.parse.urlencode({
             "date": "2022-06-10T12:00:00.000Z"
         })
@@ -166,6 +169,8 @@ class TestSales:
             print("Test_1 Response tree doesn't match expected tree.")
             sys.exit(1)
 
+    @staticmethod
+    def test_2():
         params = urllib.parse.urlencode({
             "date": "2022-06-11T12:00:00.000Z"
         })
@@ -179,3 +184,13 @@ class TestSales:
             sys.exit(1)
 
         print("Test sales passed.")
+
+    @staticmethod
+    def test_all(new_data=True, delete_after=True):
+        if new_data:
+            print("Await import data")
+            TestImport.correct_data_test()
+        TestSales.test_1()
+        TestSales.test_2()
+        if delete_after:
+            TestDelete.test_delete(TestSales._ROOT_ID, print_info=False)

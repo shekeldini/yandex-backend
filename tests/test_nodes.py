@@ -6,11 +6,12 @@ from tests.utils import request, deep_sort_children, print_diff
 
 class TestNodes:
     _ROOT_ID = "b7112a5a-f065-11ec-8ea0-0242ac120002"
+    _NEW_ROOT_ID = "5747cd46-f131-11ec-8ea0-0242ac120002"
     _EXPECTED_TREE = {
         "id": "b7112a5a-f065-11ec-8ea0-0242ac120002",
         "name": "Товары",
         "date": "2022-06-11T14:00:00.000Z",
-        "parentId": None,
+        "parentId": "5747cd46-f131-11ec-8ea0-0242ac120002",
         "type": "CATEGORY",
         "price": 9658,
         "children": [
@@ -261,7 +262,7 @@ class TestNodes:
     _UPDATED_EXPECTED_TREE = {
         "id": "5747cd46-f131-11ec-8ea0-0242ac120002",
         "name": "Новая категория",
-        "date": "2022-06-10T12:00:00.000Z",
+        "date": "2022-06-11T14:00:00.000Z",
         "parentId": None,
         "type": "CATEGORY",
         "price": 9658,
@@ -269,7 +270,7 @@ class TestNodes:
             {
                 "id": "b7112a5a-f065-11ec-8ea0-0242ac120002",
                 "name": "Товары",
-                "date": "2022-06-10T12:00:00.000Z",
+                "date": "2022-06-11T14:00:00.000Z",
                 "parentId": "5747cd46-f131-11ec-8ea0-0242ac120002",
                 "type": "CATEGORY",
                 "price": 9658,
@@ -522,10 +523,8 @@ class TestNodes:
     }
 
     @staticmethod
-    def test_basic(new_data=True):
-        if new_data:
-            print("Await import data")
-            TestImport.correct_data_test(print_info=False)
+    def test_basic():
+
         status, response = request(f"/nodes/{TestNodes._ROOT_ID}", json_response=True)
 
         assert status == 200, f"Expected HTTP status code 200, got {status}"
@@ -540,9 +539,8 @@ class TestNodes:
         print("test_basic complete")
 
     @staticmethod
-    def test_updated(delete_after=True):
-        new_root = TestImport.update_root()
-        status, response = request(f"/nodes/{new_root}", json_response=True)
+    def test_updated():
+        status, response = request(f"/nodes/{TestNodes._NEW_ROOT_ID}", json_response=True)
 
         assert status == 200, f"Expected HTTP status code 200, got {status}"
 
@@ -553,14 +551,16 @@ class TestNodes:
             print("Response tree doesn't match expected tree.")
             sys.exit(1)
 
-        if delete_after:
-            TestDelete.test_delete(new_root, print_info=False)
-
         print("test_updated complete")
 
     @staticmethod
-    def test_all(delete_after=True):
+    def test_all(new_data=True, delete_after=True):
+        if new_data:
+            print("Await import data")
+            TestImport.correct_data_test()
         TestNodes.test_basic()
-        TestNodes.test_updated(delete_after=delete_after)
+        TestNodes.test_updated()
+        if delete_after:
+            TestDelete.test_delete(TestNodes._NEW_ROOT_ID, print_info=False)
 
 

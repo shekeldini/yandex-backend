@@ -1,11 +1,10 @@
 import json
 import subprocess
-import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 
-API_BASEURL = "http://localhost:8000"
+API_BASEURL = "http://10.21.0.150:80"
 
 
 def request(path, method="GET", data=None, json_response=False):
