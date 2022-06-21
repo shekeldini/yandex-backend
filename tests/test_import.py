@@ -431,5 +431,3 @@ class TestImport:
         TestImport.change_type()
         TestImport.invalid_date()
 
-
-TestImport.test_all()

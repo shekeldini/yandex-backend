@@ -564,4 +564,3 @@ class TestNodes:
         TestNodes.test_updated(delete_after=delete_after)
 
 
-TestNodes.test_all()
