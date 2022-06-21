@@ -12,6 +12,6 @@ def test_all():
     TestNodes.test_all()
     TestSales.test_all()
     TestStatistic.test_all()
-    TestDelete.test_delete(ROOT_ID)
+    # TestDelete.test_delete(ROOT_ID)
 
 test_all()

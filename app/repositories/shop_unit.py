@@ -27,10 +27,10 @@ class ShopUnitRepository(BaseRepository):
         WHERE id = :id
         """
         values = {"id": id}
-        res = await self.database.fetch_one(query=query, values=values)
+        res = await self.database.execute(query=query, values=values)
         if res is None:
             return None
-        return int(res[0])
+        return res
 
     async def get_all_parents_for_parent(self, child_id: UUID, updated_id: list):
         updated_id.append(child_id)
