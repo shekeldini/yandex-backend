@@ -209,7 +209,7 @@ class TestImport:
     _ROOT_ID = "b7112a5a-f065-11ec-8ea0-0242ac120002"
 
     @staticmethod
-    def correct_data_test(delete_after=True, print_info=True):
+    def correct_data_test(print_info=True):
         for index, batch in enumerate(TestImport._CORRECT_DATA):
             if print_info:
                 print(f"Importing batch {index}")
@@ -217,9 +217,7 @@ class TestImport:
 
             assert status == 200, f"Expected HTTP status code 200, got {status}"
         if print_info:
-            print("Test import passed.")
-        if delete_after:
-            TestDelete.test_delete(TestImport._ROOT_ID, print_info=False)
+            print("Test: 'import' passed.")
 
     @staticmethod
     def update_root():
@@ -255,7 +253,7 @@ class TestImport:
         status, _ = request("/imports", method="POST", data=import_data)
 
         assert status == 200, f"Expected HTTP status code 200, got {status}"
-
+        print("Test: 'update root' passed.")
         return "5747cd46-f131-11ec-8ea0-0242ac120002"
 
     @staticmethod
@@ -274,7 +272,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test parent not found pass")
+        print("Test: 'parent not found' passed")
 
     @staticmethod
     def duplicate_id():
@@ -297,7 +295,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test duplicate id pass")
+        print("Test: 'duplicate id' passed")
 
     @staticmethod
     def invalid_offer_price():
@@ -314,7 +312,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test invalid offer price pass")
+        print("Test: 'invalid offer price' passed")
 
     @staticmethod
     def insert_price_in_category():
@@ -332,7 +330,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test invalid offer price pass")
+        print("Test: 'invalid offer price' passed")
 
     @staticmethod
     def has_no_name():
@@ -349,7 +347,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test has no name pass")
+        print("Test: 'has no name' passed")
 
     @staticmethod
     def offer_has_no_price():
@@ -366,7 +364,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test offer has no price pass")
+        print("Test: 'offer has no price' passed")
 
     @staticmethod
     def change_type():
@@ -399,11 +397,29 @@ class TestImport:
         status, _ = request("/imports", method="POST", data=second_data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
         TestDelete.test_delete("3fa85f64-5717-4562-b3fc-2c963f66afa6", print_info=False)
-        print("Test change type pass")
+        print("Test: 'change type' passed")
+
+    @staticmethod
+    def invalid_date():
+        first_data = {
+            "items": [
+                {
+                    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "name": "Test_CATEGORY",
+                    "type": "CATEGORY",
+                    "price": 1000
+                }
+            ],
+            "updateDate": "11-06-2022T11:00:00.000Z"
+        }
+        status, _ = request("/imports", method="POST", data=first_data)
+        assert status == 400, f"Expected HTTP status code 400, got {status}"
+
+        print("Test: 'invalid date' passed")
 
     @staticmethod
     def test_all():
-        TestImport.correct_data_test(delete_after=False)
+        TestImport.correct_data_test()
         new_root = TestImport.update_root()
         TestDelete.test_delete(new_root, print_info=False)
         TestImport.parent_not_found()
@@ -413,6 +429,7 @@ class TestImport:
         TestImport.has_no_name()
         TestImport.offer_has_no_price()
         TestImport.change_type()
+        TestImport.invalid_date()
 
 
 TestImport.test_all()

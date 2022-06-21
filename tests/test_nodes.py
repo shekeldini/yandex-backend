@@ -525,7 +525,7 @@ class TestNodes:
     def test_basic(new_data=True):
         if new_data:
             print("Await import data")
-            TestImport.correct_data_test(delete_after=False, print_info=False)
+            TestImport.correct_data_test(print_info=False)
         status, response = request(f"/nodes/{TestNodes._ROOT_ID}", json_response=True)
 
         assert status == 200, f"Expected HTTP status code 200, got {status}"
