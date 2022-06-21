@@ -61,3 +61,13 @@ class ChildrenRepository(BaseRepository):
             return res
         res = await find_root_category_id(children_id, [])
         return res[0]
+
+    async def update(self, item: ShopUnitImport):
+        new_children = Children(
+            children_id=item.id,
+            parent_id=item.parentId
+        )
+
+        values = {**new_children.dict()}
+        query = children.update().where(children.c.children_id == item.id).values(**values)
+        return await self.database.execute(query)

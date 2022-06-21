@@ -1,11 +1,14 @@
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, HTMLResponse
+from pydantic import ValidationError
+
 from app.endpoints import imports, nodes, delete, sales, node
 from app.db.base import database
 from app.models.Error import Error
 from fastapi.exceptions import RequestValidationError, HTTPException
-from app.core.utils import TooManyRequests, remove_422_from_app
+from app.core.utils import TooManyRequests, remove_422_from_app, ParentNotFound, OfferCanNotBeParent, \
+    CanNotChangeType
 
 app = FastAPI(
     title="Mega Market Open API",
@@ -23,6 +26,26 @@ remove_422_from_app(app)
 
 
 @app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
+
+
+@app.exception_handler(ParentNotFound)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
+
+
+@app.exception_handler(CanNotChangeType)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
+
+
+@app.exception_handler(OfferCanNotBeParent)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
+
+
+@app.exception_handler(ValidationError)
 async def validation_exception_handler(request, exc):
     return JSONResponse(Error(code=400, message="Validation Failed").dict(), status_code=400)
 

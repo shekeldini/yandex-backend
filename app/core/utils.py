@@ -12,6 +12,18 @@ class TooManyRequests(Exception):
     pass
 
 
+class ParentNotFound(Exception):
+    pass
+
+
+class OfferCanNotBeParent(Exception):
+    pass
+
+
+class CanNotChangeType(Exception):
+    pass
+
+
 def rate_limiter(func, redis: Redis, key: str, limit: int, period: timedelta):
     def request_is_limited(r: Redis, key: str, limit: int, period: timedelta):
         period_in_seconds = int(period.total_seconds())

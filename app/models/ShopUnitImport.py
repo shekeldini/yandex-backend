@@ -16,7 +16,7 @@ class ShopUnitImport(BaseModel):
     @root_validator
     def price_validation(cls, values):
         type, price = values.get("type"), values.get("price")
-        if type.value == ShopUnitType.CATEGORY.value and price:
+        if type.value == ShopUnitType.CATEGORY.value and (price or price == 0):
             raise ValueError('Validation Failed')
         if type.value == ShopUnitType.OFFER.value and (not price or price < 0):
             raise ValueError('Validation Failed')

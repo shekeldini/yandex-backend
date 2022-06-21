@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 from .children import ChildrenRepository
+from ..core.utils import ParentNotFound, OfferCanNotBeParent
 from ..db.statistic import statistic
 from ..db.children import children
 from ..models.Children import Children
@@ -63,11 +64,18 @@ class ShopUnitRepository(BaseRepository):
         )
         values = {**new_shop_unit_item.dict()}
         query = shop_unit.insert().values(**values)
-        await self.database.execute(query)
-        if item.parentId:
-            children_repository = ChildrenRepository(self.database)
-            await children_repository.create(item)
         children_repository = ChildrenRepository(self.database)
+
+        if item.parentId:
+            parent = await self.get_by_id(item.parentId)
+            if not parent:
+                raise ParentNotFound()
+            if parent.type != ShopUnitType.CATEGORY.value:
+                raise OfferCanNotBeParent()
+            await self.database.execute(query)
+            await children_repository.create(item)
+        else:
+            await self.database.execute(query)
         return await self.create_dump(
             id=item.id,
             name=item.name,
@@ -91,13 +99,24 @@ class ShopUnitRepository(BaseRepository):
             values.pop("price", None)
         query = shop_unit.update().where(shop_unit.c.id == update_shop_unit_item.id).values(**values)
         await self.database.execute(query=query)
+
         children_repository = ChildrenRepository(self.database)
+        parent_id = await children_repository.get_parent_id(item.id)
+
+        if not parent_id and item.parentId:
+            await children_repository.create(item)
+            await self.update_parent_price(item.parentId)
+        elif parent_id != item.parentId:
+            await children_repository.update(item)
+            await self.update_parent_price(item.parentId)
+            await self.update_parent_price(parent_id)
+
         if dump:
             await self.create_dump(
                 id=item.id,
                 name=item.name,
                 date=date,
-                parentId=await children_repository.get_parent_id(item.id),
+                parentId=parent_id,
                 price=item.price,
                 type=item.type
             )

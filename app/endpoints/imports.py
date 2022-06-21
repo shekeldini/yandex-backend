@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response, Request
 from .config.imports import RESPONSES, DESCRIPTION
 from .depends import get_shop_unit_repository, get_children_repository
 from ..core.config import IMPORT_KEY, IMPORT_MAX_REQUESTS, IMPORT_EXPIRE
-from ..core.utils import remove_422, request_is_limited, TooManyRequests
+from ..core.utils import remove_422, request_is_limited, TooManyRequests, CanNotChangeType
 from ..db.base import redis
 from ..models.ShopUnitImportRequest import ShopUnitImportRequest
 from ..models.ShopUnitType import ShopUnitType
@@ -36,7 +36,10 @@ async def import_shop_unit(
                 limit=IMPORT_MAX_REQUESTS,
                 period=IMPORT_EXPIRE
         ):
-            if await shop_unit_repository.get_by_id(item.id):
+            exist_item = await shop_unit_repository.get_by_id(item.id)
+            if exist_item:
+                if exist_item.type != item.type:
+                    raise CanNotChangeType()
                 await shop_unit_repository.update(item, date)
             else:
                 await shop_unit_repository.create(item, date)
@@ -54,7 +57,6 @@ async def import_shop_unit(
 
     for parentId in need_update["price"]:
         root_parent_id = await children_repository.get_root_category_id(parentId)
-        # print(root_parent_id)
         if root_parent_id not in price_updated:
             await shop_unit_repository.update_parent_price(parentId)
             price_updated.add(root_parent_id)

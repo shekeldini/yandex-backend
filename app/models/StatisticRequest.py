@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import Optional
 from fastapi import Path, Query
 from uuid import UUID
+
+from pydantic import root_validator
 from pydantic.dataclasses import dataclass
 
 
@@ -26,3 +28,9 @@ class StatisticRequest:
                     "Если дата не удовлетворяет данному формату, необходимо отвечать 400."
     )
 
+    @root_validator
+    def date_validation(cls, values):
+        date_start, date_end = values.get("dateStart"), values.get("dateEnd")
+        if date_start and date_end and date_start < date_end:
+            return values
+        raise ValueError('Validation Failed')
