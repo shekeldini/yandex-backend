@@ -269,7 +269,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'parent not found' passed")
+        print("Test: 'parent not found' passed.")
 
     @staticmethod
     def duplicate_id():
@@ -292,7 +292,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'duplicate id' passed")
+        print("Test: 'duplicate id' passed.")
 
     @staticmethod
     def invalid_offer_price():
@@ -309,7 +309,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'invalid offer price' passed")
+        print("Test: 'invalid offer price' passed.")
 
     @staticmethod
     def insert_price_in_category():
@@ -327,7 +327,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'invalid offer price' passed")
+        print("Test: 'insert price in category' passed")
 
     @staticmethod
     def has_no_name():
@@ -344,7 +344,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'has no name' passed")
+        print("Test: 'has no name' passed.")
 
     @staticmethod
     def offer_has_no_price():
@@ -361,7 +361,7 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'offer has no price' passed")
+        print("Test: 'offer has no price' passed.")
 
     @staticmethod
     def change_type():
@@ -394,7 +394,7 @@ class TestImport:
         status, _ = request("/imports", method="POST", data=second_data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
         TestDelete.test_delete("3fa85f64-5717-4562-b3fc-2c963f66afa6", print_info=False)
-        print("Test: 'change type' passed")
+        print("Test: 'change type' passed.")
 
     @staticmethod
     def invalid_date():
@@ -412,10 +412,10 @@ class TestImport:
         status, _ = request("/imports", method="POST", data=first_data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
 
-        print("Test: 'invalid date' passed")
+        print("Test: 'invalid date' passed.")
 
     @staticmethod
-    def test_all(delete_after=True):
+    def test_all():
         TestImport.correct_data_test()
         TestImport.update_root()
         TestImport.parent_not_found()
@@ -426,6 +426,5 @@ class TestImport:
         TestImport.offer_has_no_price()
         TestImport.change_type()
         TestImport.invalid_date()
-        if delete_after:
-            TestDelete.test_delete(TestImport._NEW_ROOT_ID, print_info=False)
+
 

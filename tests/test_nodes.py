@@ -536,7 +536,7 @@ class TestNodes:
             print("Response tree doesn't match expected tree.")
             sys.exit(1)
 
-        print("Test: 'basic' passed")
+        print("Test: 'basic' passed.")
 
     @staticmethod
     def updated():
@@ -551,16 +551,11 @@ class TestNodes:
             print("Response tree doesn't match expected tree.")
             sys.exit(1)
 
-        print("Test: 'updated' passed")
+        print("Test: 'updated' passed.")
 
     @staticmethod
-    def test_all(new_data=True, delete_after=True):
-        if new_data:
-            print("Await import data")
-            TestImport.correct_data_test()
+    def test_all():
         TestNodes.basic()
         TestNodes.updated()
-        if delete_after:
-            TestDelete.test_delete(TestNodes._NEW_ROOT_ID, print_info=False)
 
 

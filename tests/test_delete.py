@@ -10,4 +10,4 @@ class TestDelete:
         status, _ = request(f"/nodes/{root_id}", json_response=True)
         assert status == 404, f"Expected HTTP status code 404, got {status}"
         if print_info:
-            print("Test delete passed.")
+            print("Test: 'delete' passed.")

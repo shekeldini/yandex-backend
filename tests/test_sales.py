@@ -183,14 +183,10 @@ class TestSales:
             print("Test_2 Response tree doesn't match expected tree.")
             sys.exit(1)
 
-        print("Test sales passed.")
+        print("Test: 'sales' passed.")
 
     @staticmethod
-    def test_all(new_data=True, delete_after=True):
-        if new_data:
-            print("Await import data")
-            TestImport.correct_data_test()
+    def test_all():
         TestSales.test_1()
         TestSales.test_2()
-        if delete_after:
-            TestDelete.test_delete(TestSales._ROOT_ID, print_info=False)
+

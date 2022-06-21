@@ -44,7 +44,16 @@ class TestStatistic:
                 "type": "CATEGORY",
                 "price": 9658,
                 "date": "2022-06-11T14:00:00.000Z"
+            },
+            {
+                "id": "b7112a5a-f065-11ec-8ea0-0242ac120002",
+                "name": "Товары",
+                "parentId": "5747cd46-f131-11ec-8ea0-0242ac120002",
+                "type": "CATEGORY",
+                "price": 9658,
+                "date": "2022-06-11T14:00:00.000Z"
             }
+
         ]
     }
     _STATS_TEST_DATE_START = {
@@ -61,6 +70,14 @@ class TestStatistic:
                 "id": "b7112a5a-f065-11ec-8ea0-0242ac120002",
                 "name": "Товары",
                 "parentId": None,
+                "type": "CATEGORY",
+                "price": 9658,
+                "date": "2022-06-11T14:00:00.000Z"
+            },
+            {
+                "id": "b7112a5a-f065-11ec-8ea0-0242ac120002",
+                "name": "Товары",
+                "parentId": "5747cd46-f131-11ec-8ea0-0242ac120002",
                 "type": "CATEGORY",
                 "price": 9658,
                 "date": "2022-06-11T14:00:00.000Z"
@@ -100,7 +117,7 @@ class TestStatistic:
             print_diff(TestStatistic._STATS_TEST_ALL_TIME, response)
             print("Test_1 Response tree doesn't match expected tree.")
             sys.exit(1)
-        print("Test: 'all time' passed")
+        print("Test: 'all time' passed.")
 
     @staticmethod
     def start_date():
@@ -116,7 +133,7 @@ class TestStatistic:
             print_diff(TestStatistic._STATS_TEST_ALL_TIME, response)
             print("Test_2 Response tree doesn't match expected tree.")
             sys.exit(1)
-        print("Test: 'start date' passed")
+        print("Test: 'start date' passed.")
 
     @staticmethod
     def start_date_end_date():
@@ -133,7 +150,7 @@ class TestStatistic:
             print_diff(TestStatistic._STATS_TEST_DATE_START_DATE_END, response)
             print("Test_3 Response tree doesn't match expected tree.")
             sys.exit(1)
-        print("Test: 'start date - end date' passed")
+        print("Test: 'start date - end date' passed.")
 
     @staticmethod
     def item_not_found():
@@ -142,16 +159,12 @@ class TestStatistic:
 
         assert status == 404, f"Expected HTTP status code 404, got {status}"
 
-        print("Test: 'item not found' passed")
+        print("Test: 'item not found' passed.")
 
     @staticmethod
-    def test_all(new_data=True, delete_after=True):
-        if new_data:
-            print("Await import data")
-            TestImport.correct_data_test()
+    def test_all():
         TestStatistic.all_time()
         TestStatistic.start_date()
         TestStatistic.start_date_end_date()
         TestStatistic.item_not_found()
-        if delete_after:
-            TestDelete.test_delete(TestImport._ROOT_ID, print_info=False)
+
