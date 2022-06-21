@@ -523,7 +523,7 @@ class TestNodes:
     }
 
     @staticmethod
-    def test_basic():
+    def basic():
 
         status, response = request(f"/nodes/{TestNodes._ROOT_ID}", json_response=True)
 
@@ -536,10 +536,10 @@ class TestNodes:
             print("Response tree doesn't match expected tree.")
             sys.exit(1)
 
-        print("test_basic complete")
+        print("Test: 'basic' passed")
 
     @staticmethod
-    def test_updated():
+    def updated():
         status, response = request(f"/nodes/{TestNodes._NEW_ROOT_ID}", json_response=True)
 
         assert status == 200, f"Expected HTTP status code 200, got {status}"
@@ -551,15 +551,15 @@ class TestNodes:
             print("Response tree doesn't match expected tree.")
             sys.exit(1)
 
-        print("test_updated complete")
+        print("Test: 'updated' passed")
 
     @staticmethod
     def test_all(new_data=True, delete_after=True):
         if new_data:
             print("Await import data")
             TestImport.correct_data_test()
-        TestNodes.test_basic()
-        TestNodes.test_updated()
+        TestNodes.basic()
+        TestNodes.updated()
         if delete_after:
             TestDelete.test_delete(TestNodes._NEW_ROOT_ID, print_info=False)
 

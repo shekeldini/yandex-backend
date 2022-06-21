@@ -21,6 +21,17 @@ class ShopUnitRepository(BaseRepository):
             return None
         return ShopUnitSelect.parse_obj(res)
 
+    async def get_price(self, id: UUID) -> Optional[int]:
+        query = """
+        SELECT price FROM shop_unit 
+        WHERE id = :id
+        """
+        values = {"id": id}
+        res = await self.database.fetch_one(query=query, values=values)
+        if res is None:
+            return None
+        return int(res[0])
+
     async def get_all_parents_for_parent(self, child_id: UUID, updated_id: list):
         updated_id.append(child_id)
         query = children.select().where(children.c.children_id == child_id)
@@ -116,8 +127,8 @@ class ShopUnitRepository(BaseRepository):
                 id=item.id,
                 name=item.name,
                 date=date,
-                parentId=parent_id,
-                price=item.price,
+                parentId=await children_repository.get_parent_id(item.id),
+                price=item.price if item.type == ShopUnitType.OFFER.value else await self.get_price(item.id),
                 type=item.type
             )
         return

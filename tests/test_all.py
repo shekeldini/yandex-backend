@@ -11,8 +11,7 @@ def test_all():
     # TestImport.test_all(delete_after=False)
     # TestNodes.test_all(new_data=False, delete_after=False)
     # TestSales.test_all(new_data=False, delete_after=False)
-    # TestStatistic.test_all(new_data=True, delete_after=False)
-    # TestDelete.test_delete(NEW_ROOT_ID)
-    pass
+    # TestStatistic.test_all(new_data=False, delete_after=True)
+    TestDelete.test_delete(NEW_ROOT_ID)
 
 test_all()
