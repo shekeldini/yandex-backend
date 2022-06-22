@@ -1,6 +1,6 @@
 import sys
-from tests.test_delete import TestDelete
-from tests.test_import import TestImport
+import time
+
 from tests.utils import request, deep_sort_children, print_diff
 
 
@@ -524,9 +524,9 @@ class TestNodes:
 
     @staticmethod
     def basic():
-
+        start = time.time()
         status, response = request(f"/nodes/{TestNodes._ROOT_ID}", json_response=True)
-
+        end = time.time()
         assert status == 200, f"Expected HTTP status code 200, got {status}"
 
         deep_sort_children(response)
@@ -536,22 +536,23 @@ class TestNodes:
             print("Response tree doesn't match expected tree.")
             sys.exit(1)
 
-        print("Test: 'basic' passed.")
+        print(f"Test: 'basic' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def updated():
+        start = time.time()
         status, response = request(f"/nodes/{TestNodes._NEW_ROOT_ID}", json_response=True)
-
+        end = time.time()
         assert status == 200, f"Expected HTTP status code 200, got {status}"
 
         deep_sort_children(response)
         deep_sort_children(TestNodes._UPDATED_EXPECTED_TREE)
         if response != TestNodes._UPDATED_EXPECTED_TREE:
             print_diff(TestNodes._UPDATED_EXPECTED_TREE, response)
-            print("Response tree doesn't match expected tree.")
+            print("Response tree doesn't match expected tree. ")
             sys.exit(1)
 
-        print("Test: 'updated' passed.")
+        print(f"Test: 'updated' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def test_all():

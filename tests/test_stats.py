@@ -1,4 +1,5 @@
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -107,9 +108,10 @@ class TestStatistic:
 
     @staticmethod
     def all_time():
+        start = time.time()
         status, response = request(
             f"/node/{TestStatistic._ROOT_ID}/statistic", json_response=True)
-
+        end = time.time()
         assert status == 200, f"Expected HTTP status code 200, got {status}"
         sort_items(response)
         sort_items(TestStatistic._STATS_TEST_ALL_TIME)
@@ -117,15 +119,17 @@ class TestStatistic:
             print_diff(TestStatistic._STATS_TEST_ALL_TIME, response)
             print("Test_1 Response tree doesn't match expected tree.")
             sys.exit(1)
-        print("Test: 'all time' passed.")
+        print(f"Test: 'all time' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def start_date():
         params = urllib.parse.urlencode({
             "dateStart": "2022-06-11T10:00:00.000Z"
         })
+        start = time.time()
         status, response = request(
             f"/node/{TestStatistic._ROOT_ID}/statistic?{params}", json_response=True)
+        end = time.time()
         assert status == 200, f"Expected HTTP status code 200, got {status}"
         sort_items(response)
         sort_items(TestStatistic._STATS_TEST_DATE_START)
@@ -133,7 +137,7 @@ class TestStatistic:
             print_diff(TestStatistic._STATS_TEST_ALL_TIME, response)
             print("Test_2 Response tree doesn't match expected tree.")
             sys.exit(1)
-        print("Test: 'start date' passed.")
+        print(f"Test: 'start date' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def start_date_end_date():
@@ -141,8 +145,10 @@ class TestStatistic:
             "dateStart": "2022-06-10T12:01:00.000Z",
             "dateEnd": "2022-06-11T11:00:00.000Z"
         })
+        start = time.time()
         status, response = request(
             f"/node/{TestStatistic._ROOT_ID}/statistic?{params}", json_response=True)
+        end = time.time()
         assert status == 200, f"Expected HTTP status code 200, got {status}"
         sort_items(response)
         sort_items(TestStatistic._STATS_TEST_DATE_START_DATE_END)
@@ -150,16 +156,17 @@ class TestStatistic:
             print_diff(TestStatistic._STATS_TEST_DATE_START_DATE_END, response)
             print("Test_3 Response tree doesn't match expected tree.")
             sys.exit(1)
-        print("Test: 'start date - end date' passed.")
+        print(f"Test: 'start date - end date' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def item_not_found():
+        start = time.time()
         status, response = request(
             f"/node/{TestStatistic._ITEM_NOT_FOUND_ID}/statistic", json_response=True)
-
+        end = time.time()
         assert status == 404, f"Expected HTTP status code 404, got {status}"
 
-        print("Test: 'item not found' passed.")
+        print(f"Test: 'item not found' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def test_all():

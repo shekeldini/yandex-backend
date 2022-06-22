@@ -1,6 +1,6 @@
 from tests.test_delete import TestDelete
 from tests.utils import request
-
+import time
 
 class TestImport:
     _CORRECT_DATA = [
@@ -212,10 +212,11 @@ class TestImport:
     @staticmethod
     def correct_data_test():
         for index, batch in enumerate(TestImport._CORRECT_DATA):
+            start = time.time()
             status, _ = request("/imports", method="POST", data=batch)
-
+            end = time.time()
             assert status == 200, f"Expected HTTP status code 200, got {status}"
-            print("Test: 'import' passed.")
+            print(f"Test: 'import' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def update_root():
@@ -267,9 +268,11 @@ class TestImport:
             ],
             "updateDate": "2022-06-21T05:39:25.373Z"
         }
+        start = time.time()
         status, _ = request("/imports", method="POST", data=data)
+        end = time.time()
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'parent not found' passed.")
+        print(f"Test: 'parent not found' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def duplicate_id():
@@ -290,9 +293,11 @@ class TestImport:
             ],
             "updateDate": "2022-06-10T12:01:00.000Z"
         }
+        start = time.time()
         status, _ = request("/imports", method="POST", data=data)
+        end = time.time()
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'duplicate id' passed.")
+        print(f"Test: 'duplicate id' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def invalid_offer_price():
@@ -307,9 +312,11 @@ class TestImport:
             ],
             "updateDate": "2022-06-11T11:00:00.000Z"
         }
+        start = time.time()
         status, _ = request("/imports", method="POST", data=data)
+        end = time.time()
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'invalid offer price' passed.")
+        print(f"Test: 'invalid offer price' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def insert_price_in_category():
@@ -325,9 +332,11 @@ class TestImport:
             ],
             "updateDate": "2022-06-11T14:00:00.000Z"
         }
+        start = time.time()
         status, _ = request("/imports", method="POST", data=data)
+        end = time.time()
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'insert price in category' passed")
+        print(f"Test: 'insert price in category' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def has_no_name():
@@ -342,9 +351,11 @@ class TestImport:
             ],
             "updateDate": "2022-06-11T14:00:00.000Z"
         }
+        start = time.time()
         status, _ = request("/imports", method="POST", data=data)
+        end = time.time()
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'has no name' passed.")
+        print(f"Test: 'has no name' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def offer_has_no_price():
@@ -359,9 +370,11 @@ class TestImport:
             ],
             "updateDate": "2022-06-11T11:00:00.000Z"
         }
+        start = time.time()
         status, _ = request("/imports", method="POST", data=data)
+        end = time.time()
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        print("Test: 'offer has no price' passed.")
+        print(f"Test: 'offer has no price' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def change_type():
@@ -393,12 +406,12 @@ class TestImport:
         }
         status, _ = request("/imports", method="POST", data=second_data)
         assert status == 400, f"Expected HTTP status code 400, got {status}"
-        TestDelete.test_delete("3fa85f64-5717-4562-b3fc-2c963f66afa6", print_info=False)
+        TestDelete.delete("3fa85f64-5717-4562-b3fc-2c963f66afa6", print_info=False)
         print("Test: 'change type' passed.")
 
     @staticmethod
     def invalid_date():
-        first_data = {
+        data = {
             "items": [
                 {
                     "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -409,10 +422,12 @@ class TestImport:
             ],
             "updateDate": "11-06-2022T11:00:00.000Z"
         }
-        status, _ = request("/imports", method="POST", data=first_data)
+        start = time.time()
+        status, _ = request("/imports", method="POST", data=data)
+        end = time.time()
         assert status == 400, f"Expected HTTP status code 400, got {status}"
 
-        print("Test: 'invalid date' passed.")
+        print(f"Test: 'invalid date' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def test_all():

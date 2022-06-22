@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 from ..models.ShopUnit import ShopUnitSelect, ShopUnit
 from ..db.shop_unit import shop_unit

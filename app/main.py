@@ -2,7 +2,6 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from pydantic import ValidationError
-
 from app.endpoints import imports, nodes, delete, sales, node
 from app.db.base import database
 from app.models.Error import Error

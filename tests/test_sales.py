@@ -1,4 +1,5 @@
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -160,7 +161,9 @@ class TestSales:
         params = urllib.parse.urlencode({
             "date": "2022-06-10T12:00:00.000Z"
         })
+        start = time.time()
         status, response = request(f"/sales?{params}", json_response=True)
+        end = time.time()
         assert status == 200, f"Expected HTTP status code 200, got {status}"
         sort_items(response)
         sort_items(TestSales._SALES_TEST_1)
@@ -168,13 +171,16 @@ class TestSales:
             print_diff(TestSales._SALES_TEST_1, response)
             print("Test_1 Response tree doesn't match expected tree.")
             sys.exit(1)
+        print(f"Test: 'sales_1' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def test_2():
         params = urllib.parse.urlencode({
             "date": "2022-06-11T12:00:00.000Z"
         })
+        start = time.time()
         status, response = request(f"/sales?{params}", json_response=True)
+        end = time.time()
         assert status == 200, f"Expected HTTP status code 200, got {status}"
         sort_items(response)
         sort_items(TestSales._SALES_TEST_2)
@@ -183,10 +189,9 @@ class TestSales:
             print("Test_2 Response tree doesn't match expected tree.")
             sys.exit(1)
 
-        print("Test: 'sales' passed.")
+        print(f"Test: 'sales_2' passed. Time: {round(end - start, 3)}")
 
     @staticmethod
     def test_all():
         TestSales.test_1()
         TestSales.test_2()
-

@@ -21,6 +21,8 @@ class ChildrenRepository(BaseRepository):
             get root parent id
         update(item: ShopUnitImport)
             update parent for child
+        delete(id: UUID)
+            delete parent for child
 
     """
     async def create(self, item: ShopUnitImport):
@@ -83,4 +85,11 @@ class ChildrenRepository(BaseRepository):
 
         values = {**new_children.dict()}
         query = children.update().where(children.c.children_id == item.id).values(**values)
+        return await self.database.execute(query)
+
+    async def delete(self, id: UUID):
+        """
+        delete parent for child
+        """
+        query = children.delete().where(children.c.children_id == id)
         return await self.database.execute(query)

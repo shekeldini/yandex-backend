@@ -190,8 +190,12 @@ class ShopUnitRepository(BaseRepository):
             await children_repository.create(item)
             # update new parent price
             await self.update_parent_price(item.parentId)
+        # new parentId is None
+        elif parent_id and item.parentId is None:
+            await children_repository.delete(item.id)
+            await self.update_parent_price(parent_id)
         # old parentId don't match with new parentId
-        elif parent_id != item.parentId:
+        elif item.parentId and parent_id != item.parentId:
             # update parentId for item
             await children_repository.update(item)
             # update price for new parentId
