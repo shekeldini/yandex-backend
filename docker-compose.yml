@@ -10,7 +10,7 @@ services:
       - 80:8000
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/yandex_db
-      - REDIS_URL=localhost
+      - REDIS_URL=redis
       - REDIS_PORT=6379
     depends_on:
       - db

@@ -5,6 +5,6 @@
 *.pyc
 app/test.py
 
-app/expected.json
-app/response.json
+*expected.json
+*response.json
 
