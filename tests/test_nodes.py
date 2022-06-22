@@ -1,7 +1,7 @@
 import sys
 import time
 
-from tests.utils import request, deep_sort_children, print_diff
+from utils import request, deep_sort_children, print_diff
 
 
 class TestNodes:

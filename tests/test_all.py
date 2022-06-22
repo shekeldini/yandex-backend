@@ -1,8 +1,8 @@
-from tests.test_import import TestImport
-from tests.test_nodes import TestNodes
-from tests.test_sales import TestSales
-from tests.test_stats import TestStatistic
-from tests.test_delete import TestDelete
+from test_import import TestImport
+from test_nodes import TestNodes
+from test_sales import TestSales
+from test_stats import TestStatistic
+from test_delete import TestDelete
 
 ROOT_ID = "5747cd46-f131-11ec-8ea0-0242ac120002"
 

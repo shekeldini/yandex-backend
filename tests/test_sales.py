@@ -4,9 +4,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from tests.test_delete import TestDelete
-from tests.test_import import TestImport
-from tests.utils import request, sort_items, print_diff
+from utils import request, sort_items, print_diff
 
 
 class TestSales:

@@ -1,5 +1,5 @@
-from tests.test_delete import TestDelete
-from tests.utils import request
+from test_delete import TestDelete
+from utils import request
 import time
 
 class TestImport:

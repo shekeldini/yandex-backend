@@ -1,6 +1,6 @@
 import time
 
-from tests.utils import request
+from utils import request
 
 
 class TestDelete:
