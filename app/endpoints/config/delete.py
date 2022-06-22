@@ -1,5 +1,6 @@
 from app.models.Error import Error
 
+# response for route
 RESPONSES = {
     200: {
         "description": "Удаление прошло успешно.",
@@ -37,6 +38,8 @@ RESPONSES = {
         }
     }
 }
+
+# description for route
 DESCRIPTION = """Удалить элемент по идентификатору. При удалении категории удаляются все дочерние элементы. 
 Доступ к статистике (истории обновлений) удаленного элемента невозможен.
 

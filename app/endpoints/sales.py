@@ -21,6 +21,12 @@ async def read_sales(
         model: SalesDate = Depends(),
         sales_repository: SalesRepository = Depends(get_sales_repository)
 ):
+    """
+        Route /sales with method 'get'
+
+        Get information about OFFERS for 24h from start date
+    """
+    # Wrapping the function sales_repository.get_sales for tracking rate limit for client ip
     get_sales_func = rate_limiter(
         func=sales_repository.get_sales,
         redis=redis,
@@ -28,4 +34,5 @@ async def read_sales(
         limit=setting.INFO_MAX_REQUESTS,
         period=setting.INFO_EXPIRE
     )
+    # Get sales information
     return await get_sales_func(model.date)

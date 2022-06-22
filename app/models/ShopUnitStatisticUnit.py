@@ -17,6 +17,13 @@ class ShopUnitStatisticUnit(BaseModel):
 
     @validator('date')
     def datetime_valid(cls, date: datetime):
+        """
+        Try convert date to iso format
+
+        If can't raise 'Validation Failed' exception
+
+        Else return date in ISO 8601 format
+        """
         try:
             date.isoformat()
         except:

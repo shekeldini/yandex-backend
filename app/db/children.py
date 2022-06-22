@@ -1,6 +1,8 @@
 from sqlalchemy import Table, String, Column, ForeignKey
 from .base import metadata
 
+
+# Сhildrens table where OFFER and CATEGORY are linked
 children = Table(
     "childrens",
     metadata,

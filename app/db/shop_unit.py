@@ -1,6 +1,7 @@
 from sqlalchemy import Table, String, Column, INTEGER, DateTime
 from .base import metadata
 
+# Shop_unit table that stores all OFFER and CATEGORY
 shop_unit = Table(
     "shop_unit",
     metadata,

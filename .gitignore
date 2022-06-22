@@ -7,4 +7,4 @@ app/test.py
 
 app/expected.json
 app/response.json
-*.pyc
+

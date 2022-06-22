@@ -19,6 +19,13 @@ class ShopUnit(BaseModel):
 
     @validator('date')
     def datetime_valid(cls, date: datetime):
+        """
+        Try convert date to iso format
+
+        If can't raise 'Validation Failed' exception
+
+        Else return date in ISO 8601 format
+        """
         try:
             date.isoformat()
         except:
@@ -35,6 +42,13 @@ class ShopUnitSelect(BaseModel):
 
     @validator('date')
     def datetime_valid(cls, date: datetime):
+        """
+        Try convert date to iso format
+
+        If can't raise 'Validation Failed' exception
+
+        Else return date in ISO 8601 format
+        """
         try:
             date.isoformat()
         except:
@@ -51,6 +65,13 @@ class ShopUnitInsert(BaseModel):
 
     @validator('date')
     def datetime_valid(cls, date: datetime):
+        """
+        Try convert date to iso format
+
+        If can't raise 'Validation Failed' exception
+
+        Else return date
+        """
         try:
             date.isoformat()
         except:
@@ -68,6 +89,13 @@ class ShopUnitDump(BaseModel):
 
     @validator('date')
     def datetime_valid(cls, date: datetime):
+        """
+        Try convert date to iso format
+
+        If can't raise 'Validation Failed' exception
+
+        Else return date
+        """
         try:
             date.isoformat()
         except:

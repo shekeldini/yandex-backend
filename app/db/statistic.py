@@ -1,6 +1,8 @@
 from sqlalchemy import Table, String, Column, INTEGER, DateTime
 from .base import metadata
 
+
+# Statistic table that stores all changes in OFFER and CATEGORY
 statistic = Table(
     "statistic",
     metadata,

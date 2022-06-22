@@ -16,14 +16,17 @@ class ShopUnitImport(BaseModel):
     @root_validator
     def price_validation(cls, values):
         type, price = values.get("type"), values.get("price")
-        if type.value == ShopUnitType.CATEGORY.value and (price or price == 0):
+        # Category can't have price
+        if type.value == ShopUnitType.CATEGORY.value and price is not None:
             raise ValueError('Validation Failed')
-        if type.value == ShopUnitType.OFFER.value and (not price or price < 0):
+        # Offer price should be >= 0
+        if type.value == ShopUnitType.OFFER.value and (price is None or price < 0):
             raise ValueError('Validation Failed')
         return values
 
     @classmethod
     def unvalidated(cls, **data: Any):
+        """Using when calculate and update category price"""
         for name, field in cls.__fields__.items():
             try:
                 data[name]
@@ -31,7 +34,6 @@ class ShopUnitImport(BaseModel):
                 if field.required:
                     raise TypeError(f"Missing required keyword argument {name!r}")
                 if field.default is None:
-                    # deepcopy is quite slow on None
                     value = None
                 else:
                     value = deepcopy(field.default)

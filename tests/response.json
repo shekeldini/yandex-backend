@@ -1,0 +1,116 @@
+{
+  "items": [
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "8f1eb91c-f11a-11ec-8ea0-0242ac120002",
+      "name": "Фен_1",
+      "parentId": null,
+      "price": 1000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc750ffa-f066-11ec-8ea0-0242ac120002",
+      "name": "Тостер_1",
+      "parentId": null,
+      "price": 2000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc75137e-f066-11ec-8ea0-0242ac120002",
+      "name": "Тостер_2",
+      "parentId": null,
+      "price": 2500,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc751586-f066-11ec-8ea0-0242ac120002",
+      "name": "Тостер_3",
+      "parentId": null,
+      "price": 3000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc75175c-f066-11ec-8ea0-0242ac120002",
+      "name": "Видеокарта_1",
+      "parentId": null,
+      "price": 20000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc75189c-f066-11ec-8ea0-0242ac120002",
+      "name": "Видеокарта_2",
+      "parentId": null,
+      "price": 30000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc7519e6-f066-11ec-8ea0-0242ac120002",
+      "name": "Видеокарта_3",
+      "parentId": null,
+      "price": 40000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc751b1c-f066-11ec-8ea0-0242ac120002",
+      "name": "Процессор_1",
+      "parentId": null,
+      "price": 10000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc751c52-f066-11ec-8ea0-0242ac120002",
+      "name": "Процессор_2",
+      "parentId": null,
+      "price": 15000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc752030-f066-11ec-8ea0-0242ac120002",
+      "name": "Процессор_3",
+      "parentId": null,
+      "price": 20000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc752166-f066-11ec-8ea0-0242ac120002",
+      "name": "Футболка_1",
+      "parentId": null,
+      "price": 1000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc75229c-f066-11ec-8ea0-0242ac120002",
+      "name": "Футболка_2",
+      "parentId": null,
+      "price": 1200,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc7525ee-f066-11ec-8ea0-0242ac120002",
+      "name": "Кроссовки_1",
+      "parentId": null,
+      "price": 3000,
+      "type": "OFFER"
+    },
+    {
+      "date": "2022-06-11T11:00:00.000Z",
+      "id": "cc75272e-f066-11ec-8ea0-0242ac120002",
+      "name": "Кроссовки_2",
+      "parentId": null,
+      "price": 5000,
+      "type": "OFFER"
+    }
+  ]
+}

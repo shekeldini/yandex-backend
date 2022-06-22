@@ -1,20 +1,32 @@
 from typing import List, Optional
 from uuid import UUID
-
-from ..db.shop_unit import shop_unit
 from ..models.Children import Children
 from ..db.children import children
 from .base import BaseRepository
-from ..models.ShopUnit import ShopUnitSelect
 from ..models.ShopUnitImport import ShopUnitImport
 
 
 class ChildrenRepository(BaseRepository):
-    async def get_all(self) -> List[Children]:
-        query = children.select()
-        return [Children.parse_obj(row) for row in await self.database.fetch_all(query)]
+    """
+    A class ChildrenRepository for work with children table in database
 
+    Methods
+        create(item: ShopUnitImport)
+            create relation children_id - parent_id
+        get_children_list(parent_id: UUID)
+            get children list for parent
+        get_parent_id(children_id: UUID)
+            get parent id for children
+        get_root_category_id(children_id: UUID)
+            get root parent id
+        update(item: ShopUnitImport)
+            update parent for child
+
+    """
     async def create(self, item: ShopUnitImport):
+        """
+        Create relation children_id - parent_id
+        """
         if not item.parentId:
             return None
         new_children = Children(
@@ -27,10 +39,16 @@ class ChildrenRepository(BaseRepository):
         return await self.database.execute(query)
 
     async def get_children_list(self, parent_id: UUID) -> List[Children]:
+        """
+        Get children list for parent
+        """
         query = children.select().where(children.c.parent_id == parent_id)
         return [Children.parse_obj(row) for row in await self.database.fetch_all(query)]
 
     async def get_parent_id(self, children_id: UUID) -> Optional[UUID]:
+        """
+        Get parent id for children
+        """
         query = children.select().where(children.c.children_id == children_id)
         res = await self.database.fetch_one(query)
         if res is None:
@@ -38,22 +56,14 @@ class ChildrenRepository(BaseRepository):
         obj = Children.parse_obj(res)
         return obj.parent_id
 
-    async def have_children(self, parent_id: UUID) -> bool:
-        query = children.select().where(children.c.parent_id == parent_id)
-        children_list = await self.database.fetch_all(query)
-        for row in children_list:
-
-            item = Children.parse_obj(row)
-            query = shop_unit.select().where(shop_unit.c.id == item.children_id)
-            res = ShopUnitSelect.parse_obj(await self.database.fetch_one(query))
-            if res.type == "OFFER":
-                return True
-            else:
-                await self.have_children(res.id)
-        return False
-
     async def get_root_category_id(self, children_id: UUID) -> UUID:
+        """
+        Get root parent id
+        """
         async def find_root_category_id(children_id, res):
+            """
+            Find root category id and append in res: list
+            """
             parent_id = await self.get_parent_id(children_id)
             if parent_id:
                 await find_root_category_id(parent_id, res)
@@ -63,6 +73,9 @@ class ChildrenRepository(BaseRepository):
         return res[0]
 
     async def update(self, item: ShopUnitImport):
+        """
+        update parent for child
+        """
         new_children = Children(
             children_id=item.id,
             parent_id=item.parentId

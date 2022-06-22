@@ -7,23 +7,40 @@ from ..models.ShopUnitStatisticUnit import ShopUnitStatisticUnit
 
 
 class NodeRepository(BaseRepository):
+    """
+    Class NodeRepository return statistic for shop unit item by id and date_start and date_end
+        Methods
+            -get_statistic(id: UUID, date_start: Optional[datetime], date_end: Optional[datetime])
+                Controller
+            -get_for_all_time(id: UUID)
+                return statistic for all time
+            -get_for_start_time(id: UUID, date_start: datetime)
+                return statistic for date BETWEEN date_start AND NOW()
+            -get_for_interval(id: UUID, date_start: datetime, date_end: datetime)
+                return statistic for date BETWEEN date_start AND date_end
+    """
     async def get_statistic(
             self,
             id: UUID,
             date_start: Optional[datetime],
             date_end: Optional[datetime]
     ) -> ShopUnitStatisticResponse:
+        """Controller: calls functions depending on the passed parameters"""
         if not (date_start or date_end):
+            # if date_start is None and date_end is None -> get statistic for all time
             return await self.get_for_all_time(id)
         elif date_start and not date_end:
+            # if only date_start -> get statistic for date BETWEEN date_start AND NOW()
             return await self.get_for_start_time(id, date_start)
         else:
+            # if date_start and date_end -> get statistic for date BETWEEN date_start AND date_end
             return await self.get_for_interval(id, date_start, date_end)
 
     async def get_for_all_time(
             self,
             id: UUID
     ) -> ShopUnitStatisticResponse:
+        """get statistic for all time for id shop unit item"""
         query = """
         SELECT id, name, date, parent_id, price, type
         FROM statistic
@@ -38,7 +55,7 @@ class NodeRepository(BaseRepository):
         items = []
         for row in res:
             item = ShopUnitStatisticUnit.parse_obj(row)
-            item.parentId = row[3]
+            item.parentId = row.parent_id
             items.append(item)
         return ShopUnitStatisticResponse(
             items=items
@@ -49,6 +66,7 @@ class NodeRepository(BaseRepository):
             id: UUID,
             date_start: datetime
     ) -> ShopUnitStatisticResponse:
+        """Get statistic for date BETWEEN date_start AND NOW() by shop unit id"""
         query = """
         SELECT id, name, date, parent_id, price, type
         FROM statistic
@@ -68,7 +86,7 @@ class NodeRepository(BaseRepository):
         items = []
         for row in res:
             item = ShopUnitStatisticUnit.parse_obj(row)
-            item.parentId = row[3]
+            item.parentId = row.parent_id
             items.append(item)
         return ShopUnitStatisticResponse(
             items=items
@@ -80,6 +98,7 @@ class NodeRepository(BaseRepository):
             date_start: datetime,
             date_end: datetime
     ) -> ShopUnitStatisticResponse:
+        """get statistic for date BETWEEN date_start AND date_end by shop unit item id"""
         query = """
         SELECT id, name, date, parent_id, price, type
         FROM statistic
@@ -100,7 +119,7 @@ class NodeRepository(BaseRepository):
         items = []
         for row in res:
             item = ShopUnitStatisticUnit.parse_obj(row)
-            item.parentId = row[3]
+            item.parentId = row.parent_id
             items.append(item)
         return ShopUnitStatisticResponse(
             items=items

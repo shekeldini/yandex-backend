@@ -1,5 +1,6 @@
 from app.models.Error import Error
 
+# response for route
 RESPONSES = {
     200: {
         "description": "Статистика по элементу.",
@@ -37,6 +38,8 @@ RESPONSES = {
         }
     }
 }
+
+# description for route
 DESCRIPTION = """Получение статистики (истории обновлений) по цене товара/категории за заданный интервал.
 Статистика по удаленным элементам недоступна.
 

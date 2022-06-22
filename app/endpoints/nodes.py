@@ -23,7 +23,14 @@ async def read_node_by_id(
         nodes_repository: NodesRepository = Depends(get_nodes_repository),
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository),
 ):
+    """
+        Route /nodes/{id} with method 'get'
+
+        Get all information for shop unit item
+    """
+    # Try find existing item. If not existing we raise exception with status code 404
     if await shop_unit_repository.get_by_id(model.id):
+        # Wrapping the function nodes_repository.get_by_id for tracking rate limit for client ip
         get_node_func = rate_limiter(
             func=nodes_repository.get_by_id,
             redis=redis,

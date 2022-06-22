@@ -10,6 +10,13 @@ class ShopUnitImportRequest(BaseModel):
 
     @validator('updateDate')
     def datetime_valid(cls, date: datetime):
+        """
+        Try convert date to iso format
+
+        If can't raise 'Validation Failed' exception
+
+        Else return date
+        """
         try:
             date.isoformat()
         except:
@@ -18,6 +25,13 @@ class ShopUnitImportRequest(BaseModel):
 
     @validator('items')
     def items_valid(cls, items: List[ShopUnitImport]):
+        """
+        Find duplicate id in items
+
+        If found raise 'Duplicate id in import items' exception
+
+        Else return items
+        """
         items_id_list = []
         for item in items:
             if item.id not in items_id_list:

@@ -15,6 +15,13 @@ class SalesDate:
 
     @validator('date')
     def datetime_valid(cls, date: datetime):
+        """
+        Try convert date to iso format
+
+        If can't raise 'Validation Failed' exception
+
+        Else return date
+        """
         try:
             date.isoformat()
         except:
