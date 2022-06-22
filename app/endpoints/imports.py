@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Response, Request
 from .config.imports import RESPONSES, DESCRIPTION
 from .depends import get_shop_unit_repository, get_children_repository
-from ..core.config import IMPORT_KEY, IMPORT_MAX_REQUESTS, IMPORT_EXPIRE
+from ..core.config import setting
 from ..core.utils import remove_422, request_is_limited, TooManyRequests, CanNotChangeType
 from ..db.base import redis
 from ..models.ShopUnitImportRequest import ShopUnitImportRequest
@@ -32,9 +32,9 @@ async def import_shop_unit(
     for item in shop_unit_items.items:
         if not request_is_limited(
                 r=redis,
-                key=IMPORT_KEY + request.client.host,
-                limit=IMPORT_MAX_REQUESTS,
-                period=IMPORT_EXPIRE
+                key=setting.IMPORT_KEY + request.client.host,
+                limit=setting.IMPORT_MAX_REQUESTS,
+                period=setting.IMPORT_EXPIRE
         ):
             exist_item = await shop_unit_repository.get_by_id(item.id)
             if exist_item:

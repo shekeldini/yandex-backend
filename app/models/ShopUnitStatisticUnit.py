@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 from pydantic import BaseModel, validator
 
-from app.core.config import DATE_TIME_FORMAT
+from app.core.config import setting
 from app.models.ShopUnitType import ShopUnitType
 
 
@@ -21,4 +21,4 @@ class ShopUnitStatisticUnit(BaseModel):
             date.isoformat()
         except:
             raise ValueError('Validation Failed')
-        return date.strftime(date.strftime(DATE_TIME_FORMAT))
+        return date.strftime(date.strftime(setting.DATE_TIME_FORMAT))

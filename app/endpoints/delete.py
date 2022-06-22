@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status, Response, Request
 from fastapi import HTTPException
 from .config.delete import RESPONSES, DESCRIPTION
 from .depends import get_shop_unit_repository
-from ..core.config import DELETE_KEY, DELETE_MAX_REQUESTS, DELETE_EXPIRE
+from ..core.config import setting
 from ..core.utils import remove_422, rate_limiter
 from ..db.base import redis
 from ..models.delete import DeleteId
@@ -25,9 +25,9 @@ async def delete(
         delete_func = rate_limiter(
             func=shop_unit_repository.delete,
             redis=redis,
-            key=DELETE_KEY + request.client.host,
-            limit=DELETE_MAX_REQUESTS,
-            period=DELETE_EXPIRE
+            key=setting.DELETE_KEY + request.client.host,
+            limit=setting.DELETE_MAX_REQUESTS,
+            period=setting.DELETE_EXPIRE
         )
         return await delete_func(model.id)
 

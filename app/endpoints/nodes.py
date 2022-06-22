@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from .config.nodes import RESPONSES, DESCRIPTION
 from .depends import get_nodes_repository, get_shop_unit_repository
-from ..core.config import INFO_KEY, INFO_MAX_REQUESTS, INFO_EXPIRE
+from ..core.config import setting
 from ..core.utils import remove_422, rate_limiter
 from ..db.base import redis
 from ..models.ShopUnit import ShopUnit
@@ -27,9 +27,9 @@ async def read_node_by_id(
         get_node_func = rate_limiter(
             func=nodes_repository.get_by_id,
             redis=redis,
-            key=INFO_KEY + request.client.host,
-            limit=INFO_MAX_REQUESTS,
-            period=INFO_EXPIRE
+            key=setting.INFO_KEY + request.client.host,
+            limit=setting.INFO_MAX_REQUESTS,
+            period=setting.INFO_EXPIRE
         )
         return await get_node_func(model.id)
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")

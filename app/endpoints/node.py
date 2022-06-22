@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from .config.node import RESPONSES, DESCRIPTION
 from .depends import get_node_repository, get_shop_unit_repository
-from ..core.config import INFO_KEY, INFO_MAX_REQUESTS, INFO_EXPIRE
+from ..core.config import setting
 from ..core.utils import remove_422, rate_limiter
 from ..db.base import redis
 from ..models.ShopUnitStatisticResponse import ShopUnitStatisticResponse
@@ -32,9 +32,9 @@ async def get_statistic(
     get_statistic_func = rate_limiter(
         func=node_repository.get_statistic,
         redis=redis,
-        key=INFO_KEY + request.client.host,
-        limit=INFO_MAX_REQUESTS,
-        period=INFO_EXPIRE
+        key=setting.INFO_KEY + request.client.host,
+        limit=setting.INFO_MAX_REQUESTS,
+        period=setting.INFO_EXPIRE
     )
     return await get_statistic_func(
         id=model.id,
