@@ -14,4 +14,5 @@ def test_all():
     TestStatistic.test_all()
     TestDelete.test_all(ROOT_ID)
 
+
 test_all()

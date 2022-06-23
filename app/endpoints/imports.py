@@ -65,6 +65,7 @@ async def import_shop_unit(
             # If item have parentId we should update parent date
             if item.parentId and item.parentId not in need_update["date"]:
                 need_update["date"].append(item.parentId)
+            # save id item for dumping
             id_items_for_dumping.add(item.id)
         else:
             limited = True
@@ -95,9 +96,10 @@ async def import_shop_unit(
                     await shop_unit_repository.update_date(id, date)
                     # Add parent id to storage
                     date_updated.add(id)
-
+    # union all id
     id_items_for_dumping = id_items_for_dumping | price_updated | date_updated
     for item_id in id_items_for_dumping:
+        # dump every changed id
         await shop_unit_repository.create_dump(item_id)
     # If limited flag True we raise TooManyRequests exception
     if limited:

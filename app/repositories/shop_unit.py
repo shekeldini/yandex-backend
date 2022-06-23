@@ -25,18 +25,16 @@ class ShopUnitRepository(BaseRepository):
             -get_all_parents_for_parent(child_id: UUID, updated_id: list)
                 get parent list
             -update_date(id: UUID, date: datetime)
-                update date for category and create dump in table statistic
+                update date for category
             -create(item: ShopUnitImport, date: datetime)
                 create new shop unit item
                 and create record in children table if item has parentId
-                and create dump in table statistic
-            -update(item: ShopUnitImport, date: datetime, dump=True, update_price=False)
+            -update(item: ShopUnitImport, date: datetime, update_price=False)
                 update shop unit item
-                and create dump in table statistic if dump=True
                 and update category price if need (using for update_parent_price)
             -delete(id: UUID)
                 delete shop unit item if exist and all children
-            -create_dump(id: UUID, name: str, date: datetime, parentId: UUID, price: Optional[int], type: str)
+            -create_dump(id: UUID)
                 create dump record in table statistic
             -get_children_tree(id: UUID)
                 create children tree for parentId
@@ -202,6 +200,7 @@ class ShopUnitRepository(BaseRepository):
 
     async def create_dump(self, id: UUID):
         """Create dump record in table statistic"""
+        # get actual data after update
         item = await self.get_by_id(id)
         children_repository = ChildrenRepository(self.database)
         # create dump model
