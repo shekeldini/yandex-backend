@@ -43,6 +43,7 @@ class ShopUnitRepository(BaseRepository):
             -update_parent_price(id: UUID)
                 update root parent and all child category price
         """
+
     async def get_by_id(self, id: UUID) -> Optional[ShopUnitSelect]:
         """Get shop_unit item from database if exist"""
         query = shop_unit.select().where(shop_unit.c.id == id)
@@ -97,17 +98,8 @@ class ShopUnitRepository(BaseRepository):
         values.pop("id", None)
         query = shop_unit.update().where(shop_unit.c.id == update_data.id).values(**values)
         # update item
-        await self.database.execute(query=query)
-        children_repository = ChildrenRepository(self.database)
-        # creating dump in statistic table
-        return await self.create_dump(
-            id=item.id,
-            name=item.name,
-            date=date,
-            parentId=await children_repository.get_parent_id(item.id),
-            price=item.price,
-            type=item.type
-        )
+        return await self.database.execute(query=query)
+
 
     async def create(self, item: ShopUnitImport, date: datetime):
         """
@@ -145,17 +137,8 @@ class ShopUnitRepository(BaseRepository):
         else:
             # create new item if item.parentId is None
             await self.database.execute(query)
-        # creating dump
-        return await self.create_dump(
-            id=item.id,
-            name=item.name,
-            date=date,
-            parentId=await children_repository.get_parent_id(item.id),
-            price=item.price,
-            type=item.type
-        )
 
-    async def update(self, item: ShopUnitImport, date: datetime, dump=True, update_price=False):
+    async def update(self, item: ShopUnitImport, date: datetime, update_price=False):
         """
         Update shop unit item
         and create dump in table statistic if dump=True
@@ -202,16 +185,6 @@ class ShopUnitRepository(BaseRepository):
             await self.update_parent_price(item.parentId)
             # update price for old parentId
             await self.update_parent_price(parent_id)
-        # create dump if dump=True
-        if dump:
-            await self.create_dump(
-                id=item.id,
-                name=item.name,
-                date=date,
-                parentId=await children_repository.get_parent_id(item.id),
-                price=item.price if item.type == ShopUnitType.OFFER.value else await self.get_price(item.id),
-                type=item.type
-            )
         return
 
     async def delete(self, id: UUID):
@@ -227,24 +200,18 @@ class ShopUnitRepository(BaseRepository):
         query = shop_unit.delete().where(shop_unit.c.id == id)
         return await self.database.execute(query=query)
 
-    async def create_dump(
-            self,
-            id: UUID,
-            name: str,
-            date: datetime,
-            parentId: UUID,
-            price: Optional[int],
-            type: str
-    ):
+    async def create_dump(self, id: UUID):
         """Create dump record in table statistic"""
+        item = await self.get_by_id(id)
+        children_repository = ChildrenRepository(self.database)
         # create dump model
         new_dump = ShopUnitDump(
             id=id,
-            name=name,
-            date=date,
-            parent_id=parentId,
-            price=price,
-            type=type
+            name=item.name,
+            date=item.date,
+            parent_id=await children_repository.get_parent_id(item.id),
+            price=item.price,
+            type=item.type
         )
         # convert model to dict
         values = {**new_dump.dict()}
@@ -285,6 +252,7 @@ class ShopUnitRepository(BaseRepository):
                     # else child type OFFER he has no children
                     else:
                         res[-1]["children"] = None
+
         # call func and fill res
         await get_children_for_parent(id, res)
         # return complete res list
@@ -292,6 +260,7 @@ class ShopUnitRepository(BaseRepository):
 
     async def update_parent_price(self, id: UUID):
         """Update root parent and all child category price"""
+
         async def mean_list(my_list: list):
             """return mean of list"""
             return sum(my_list) // len(my_list) if my_list else None
@@ -312,7 +281,7 @@ class ShopUnitRepository(BaseRepository):
                 type=root.type,
                 price=await mean_list(offer_for_node)
             )
-            await self.update(update_item, root.date, dump=False, update_price=True)
+            await self.update(update_item, root.date, update_price=True)
             return offer_for_node
 
         children_repository = ChildrenRepository(self.database)
