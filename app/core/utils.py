@@ -27,6 +27,8 @@ def rate_limiter(func: Callable, redis: Redis, key: str, limit: int, period: tim
     """
     def request_is_limited(r: Redis, key: str, limit: int, period: timedelta) -> bool:
         """
+        Using Generic cell rate algorithm
+
         Return True if the request limit is exceeded else False
             Parameters:
                 r (Redis): Redis connection
@@ -38,6 +40,7 @@ def rate_limiter(func: Callable, redis: Redis, key: str, limit: int, period: tim
                 period (timedelta): time to reset limit
 
             Return: Bool
+
         """
         period_in_seconds = int(period.total_seconds())
         t = r.time()[0]
@@ -67,6 +70,8 @@ def rate_limiter(func: Callable, redis: Redis, key: str, limit: int, period: tim
 
 def request_is_limited(r: Redis, key: str, limit: int, period: timedelta) -> bool:
     """
+        Using Generic cell rate algorithm
+
         Return True if the request limit is exceeded else False
             Parameters:
                 r (Redis): Redis connection,
@@ -94,7 +99,7 @@ def request_is_limited(r: Redis, key: str, limit: int, period: timedelta) -> boo
 
 def remove_422_from_app(app: FastAPI) -> None:
     """
-    Remove response with 422 status code if route have attributes __remove_422__
+    Remove response with 422 status code if route have attributes __remove_422__ from openapi
     """
     openapi_schema = app.openapi()
     operation_ids_to_update: Set[str] = set()
