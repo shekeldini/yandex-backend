@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status
 from .config.node import RESPONSES, DESCRIPTION
 from .depends import get_node_repository, get_shop_unit_repository
-from ..core.config import setting
-from ..core.utils import remove_422, rate_limiter
-from ..db.base import redis
+from ..core.utils import remove_422
 from ..models.ShopUnitStatisticResponse import ShopUnitStatisticResponse
 from ..models.StatisticRequest import StatisticRequest
 from ..repositories.node import NodeRepository
@@ -18,7 +16,6 @@ router = APIRouter()
             description=DESCRIPTION)
 @remove_422
 async def get_statistic(
-        request: Request,
         model: StatisticRequest = Depends(),
         node_repository: NodeRepository = Depends(get_node_repository),
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository)
@@ -34,16 +31,8 @@ async def get_statistic(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Item not found"
         )
-    # Wrapping the function node_repository.get_statistic for tracking rate limit for client ip
-    get_statistic_func = rate_limiter(
-        func=node_repository.get_statistic,
-        redis=redis,
-        key=setting.INFO_KEY + request.client.host,
-        limit=setting.INFO_MAX_REQUESTS,
-        period=setting.INFO_EXPIRE
-    )
     # Call function to get statistic for item by id and date_start and date_end
-    return await get_statistic_func(
+    return await node_repository.get_statistic(
         id=model.id,
         date_start=model.dateStart,
         date_end=model.dateEnd

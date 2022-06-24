@@ -1,10 +1,8 @@
-from fastapi import APIRouter, Depends, Response, Request
+from fastapi import APIRouter, Depends, Response
 from .config.imports import RESPONSES, DESCRIPTION
 from .depends import get_shop_unit_repository, get_children_repository
-from ..core.config import setting
-from ..core.utils import remove_422, request_is_limited
-from app.core.exception import TooManyRequests, CanNotChangeType
-from ..db.base import redis
+from ..core.utils import remove_422
+from app.core.exception import CanNotChangeType
 from ..models.ShopUnitImportRequest import ShopUnitImportRequest
 from ..models.ShopUnitType import ShopUnitType
 from ..repositories.children import ChildrenRepository
@@ -20,7 +18,6 @@ router = APIRouter()
 @remove_422
 async def import_shop_unit(
         shop_unit_items: ShopUnitImportRequest,
-        request: Request,
         shop_unit_repository: ShopUnitRepository = Depends(get_shop_unit_repository),
         children_repository: ChildrenRepository = Depends(get_children_repository)
 ):
@@ -36,41 +33,29 @@ async def import_shop_unit(
         "date": []
     }
     id_items_for_dumping = set()
-    # Limited flag
-    limited = False
     for item in shop_unit_items.items:
-        # Check request limit is exceeded for client ip
-        if not request_is_limited(
-                r=redis,
-                key=setting.IMPORT_KEY + request.client.host,
-                limit=setting.IMPORT_MAX_REQUESTS,
-                period=setting.IMPORT_EXPIRE
-        ):
-            # Try find existing item.
-            exist_item = await shop_unit_repository.get_by_id(item.id)
+        # Try find existing item.
+        exist_item = await shop_unit_repository.get_by_id(item.id)
 
-            if exist_item:
-                # If item existing and their categories don't match raise CanNotChangeType exception
-                if exist_item.type != item.type:
-                    raise CanNotChangeType()
-                # Update existing item
-                await shop_unit_repository.update(item, date)
-            else:
-                # Create new item
-                await shop_unit_repository.create(item, date)
-
-            # If item have parentId and item.type is OFFER we should update parent price
-            if item.parentId and item.type == ShopUnitType.OFFER.value and item.parentId not in need_update["price"]:
-                need_update["price"].append(item.parentId)
-            # If item have parentId we should update parent date
-            if item.parentId and item.parentId not in need_update["date"]:
-                need_update["date"].append(item.parentId)
-            # save id item for dumping
-            id_items_for_dumping.add(item.id)
+        if exist_item:
+            # If item existing and their categories don't match raise CanNotChangeType exception
+            if exist_item.type != item.type:
+                raise CanNotChangeType()
+            # Update existing item
+            await shop_unit_repository.update(item, date)
         else:
-            limited = True
-            # stop update/create item
-            break
+            # Create new item
+            await shop_unit_repository.create(item, date)
+
+        # If item have parentId and item.type is OFFER we should update parent price
+        if item.parentId and item.type == ShopUnitType.OFFER.value and item.parentId not in need_update["price"]:
+            need_update["price"].append(item.parentId)
+        # If item have parentId we should update parent date
+        if item.parentId and item.parentId not in need_update["date"]:
+            need_update["date"].append(item.parentId)
+        # save id item for dumping
+        id_items_for_dumping.add(item.id)
+
     # Storage all parentId who has been updated for not to update twice
     price_updated = set()
     date_updated = set()
@@ -101,7 +86,4 @@ async def import_shop_unit(
     for item_id in id_items_for_dumping:
         # dump every changed id
         await shop_unit_repository.create_dump(item_id)
-    # If limited flag True we raise TooManyRequests exception
-    if limited:
-        raise TooManyRequests()
     return
