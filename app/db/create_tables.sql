@@ -17,7 +17,7 @@ CONSTRAINT "C3" FOREIGN KEY ("parent_id")
     REFERENCES "shop_unit" ("id") ON DELETE CASCADE
 );
 
-CREATE TABLE statistic(
+CREATE TABLE if not exists statistic(
 "id" uuid,
 "name" text,
 "date" timestamp,
