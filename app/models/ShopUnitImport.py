@@ -16,6 +16,8 @@ class ShopUnitImport(BaseModel):
     @root_validator
     def price_validation(cls, values):
         type, price = values.get("type"), values.get("price")
+        if not type:
+            raise ValueError('Validation Failed')
         # Category can't have price
         if type.value == ShopUnitType.CATEGORY.value and price is not None:
             raise ValueError('Validation Failed')
