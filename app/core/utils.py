@@ -102,6 +102,11 @@ def remove_422_from_app(app: FastAPI) -> None:
     Remove response with 422 status code if route have attributes __remove_422__ from openapi
     """
     openapi_schema = app.openapi()
+    # remove HTTPValidationError schema
+    del app.openapi_schema["components"]["schemas"]["HTTPValidationError"]
+    # remove HTTPValidationError ValidationError
+    del app.openapi_schema["components"]["schemas"]["ValidationError"]
+
     operation_ids_to_update: Set[str] = set()
     for route in app.routes:
         if not isinstance(route, APIRoute):
